@@ -71,7 +71,15 @@ class CatalogTest {
     void unknownPathsResolveToNull() {
         assertNull(catalog.lookup(Catalog.CE, "/sys$queuemanager/nosuchlist"));
         assertNull(catalog.lookup(Catalog.CE, "/sys$authentication/users"));
-        assertNull(catalog.lookup(Catalog.CE, "/.env"));
+    }
+
+    @Test
+    void envIsBuiltIn() {
+        CatalogNode env = catalog.lookup(Catalog.CE, "/.env");
+        assertTrue(env.properties().keySet().containsAll(List.of("routername", "release", "use-smart-tree")));
+        assertEquals("Boolean", env.properties().get("use-smart-tree").type());
+        CatalogNode memory = catalog.lookup(Catalog.CE, "/.env/router-memory-list/router");
+        assertEquals(List.of("free-memory", "total-memory"), List.copyOf(memory.properties().keySet()));
     }
 
     @Test

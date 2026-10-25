@@ -1,5 +1,7 @@
 package com.swiftmq.mcp;
 
+import com.swiftmq.mcp.access.CliConnection;
+import com.swiftmq.mcp.access.ContextGuard;
 import com.swiftmq.mcp.config.Settings;
 import com.swiftmq.mcp.config.SettingsException;
 import com.swiftmq.mcp.config.SettingsResolver;
@@ -46,9 +48,13 @@ public final class Main {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> log.error("Uncaught exception in thread {}", t.getName(), e));
         log.info("Starting {} {} with {}", SwiftMqMcpServer.NAME, SwiftMqMcpServer.version(), settings);
 
+        // Connects in the background: the MCP handshake never waits for the router
+        CliConnection connection = new CliConnection(settings, new ContextGuard(settings.extraDeniedContexts())).start();
+
         CountDownLatch stdinClosed = new CountDownLatch(1);
         McpSyncServer server = SwiftMqMcpServer.start(new EofSignalingInputStream(System.in, stdinClosed), stdout, new ToolRegistry());
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> log.info("Shutting down"), "shutdown"));
+        // Also on SIGTERM: releases the router's admin-tool lease right away
+        Runtime.getRuntime().addShutdownHook(new Thread(connection::close, "shutdown"));
 
         try {
             stdinClosed.await();
@@ -57,6 +63,7 @@ public final class Main {
         }
         log.info("stdin closed, stopping");
         server.closeGracefully();
+        connection.close();
         System.exit(0);
     }
 

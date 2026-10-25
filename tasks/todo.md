@@ -369,14 +369,34 @@ client `swiftmq-client` 13.2.4. Spike code is in the session scratchpad and is n
     - bad settings → exit 2
 - [x] Manual check: `java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin` with `SWIFTMQ_PASSWORD`. stdout = 2 JSON-RPC lines, and the password doesn't appear in stderr or the log
 
-### Phase 2 — SwiftMQ access layer
-- [ ] `SwiftMqGateway` interface + `CliConnection` (lock, timeout, background connect/reconnect with backoff, router listener, clean close on EOF)
-- [ ] `ContextGuard` (fixed denylist + path canonicalization) inside `CliConnection`
-- [ ] `CommandBuilder` (can only emit `sr` and `cc`) + name validator
-- [ ] Password redaction, result caps, TTL cache
-- [ ] `NavigationState` (current router/context, cursors, delta baselines)
+### Phase 2 — SwiftMQ access layer ✅ (2026-10-25)
+Package `com.swiftmq.mcp.access`:
+- [x] `Cli` port (narrow: `executeCommand`, `getContextEntities`, `getContextProperty`, `getAvailableRouters`) + `SwiftMqCli` (JNDI lookup, `createQueueConnection(user, pw)`, `new CLI(qc)`, `RouterListener`, JMS `ExceptionListener`, `swiftmq.request.timeout`)
+- [x] `CliConnection` implements `SwiftMqGateway`:
+  - background connect, so `initialize` never waits
+  - reconnect with backoff (1 s → 30 s); a lost connection triggers a reconnect, guarded by a generation counter
+  - router availability from `RouterListener` events + `getAvailableRouters()` on connect
+  - one `ReentrantLock` with `tryLock(requestTimeout)`; every read is an absolute `sr` + `cc`
+  - unknown context → `Optional.empty()`; absent properties are skipped
+  - clean `close()` on EOF and in a shutdown hook
+- [x] `MgmtPath` (canonical absolute paths; `.`/`..` resolved locally; rejects `"`, `;`, `/` in segments, control chars, leading/trailing blanks), `ContextGuard` (fixed + extra denylist, root not readable), `CommandBuilder` (only `sr <router>` and `cc "<path>"`)
+- [x] `ManagementReader`:
+  - property names come from the catalog (incl. the built-in `.env` node)
+  - values are typed: Integer, Long, Boolean, `"null"` → null, `Date.toString()` → ISO-8601, `throughput-*` → decimal; unparseable values stay strings
+  - secrets are redacted (`***`, unset → null)
+  - child lists are capped at `maxListItems` (with total + truncated flag)
+- [x] `NavigationState`: current router/context; `resolveRouter` picks the explicit router, else the selected one, else the single available one, else an error
+- [x] Error model `SwiftMqAccessException` (`NotConnected`, `RouterUnavailable`, `AccessDenied`, `Timeout`). Messages never contain credentials
+- [x] Tests (79 total, all green):
+  - `PathAndGuardTest` (19): bypass attempts incl. `../../sys$authentication`, case variants, injection via router names
+  - `CliConnectionTest` (10): exact commands, nothing sent for denied paths, connecting/retry/reconnect, router events, concurrent reads serialized
+  - `ManagementReaderTest` (6)
+  - `LiveRouterTest` (5, against the local CE router; skipped if none is listening)
+- [x] Manual check: the jar connects to the local router (`available routers: [router]`) and closes on EOF. With an unreachable port it retries with backoff, and the server stays up
+- Deferred to Phase 3 (only needed by fan-out/list tools): TTL cache, pagination cursors, delta baselines, smart-tree detection cache
 
 ### Phase 3 — Tools
+- [ ] Smart-tree detection per router (cached `/.env use-smart-tree`), TTL cache, cursors, delta baselines
 - [ ] `connection_info`, `select_router`, `change_context`
 - [ ] `list_routers`, `list_queues`, `get_queue`, `find_queue`
 - [ ] `list_topics`, `get_topic`, `list_durable_subscribers`
