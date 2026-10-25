@@ -325,9 +325,26 @@ Docs: https://learn.microsoft.com/en-us/windows/ai/mcp/overview
 ## Development
 
 ```bash
-mvn test                           # unit + stdio process tests
+mvn test                           # unit, security and stdio process tests (live-router tests run if localhost:4001 answers)
 mvn -Pgen-catalog process-classes  # regenerate the property catalog from ./swiftmq (local CE distribution)
 ```
+
+### Test network
+
+`scripts/test-network` starts three CE routers in a chain (`routerA - routerB - routerC`) with Docker Compose.
+Only routerA is reachable from the host, on `localhost:14001`; B and C are reached through routing.
+
+```bash
+(cd scripts/test-network && docker compose up -d)
+SWIFTMQ_TEST_NETWORK=true mvn test -Dtest=RouterNetworkTest   # stops and starts routerC during the test
+SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001/timeout=10000 --user admin
+(cd scripts/test-network && docker compose down -v)
+```
+
+### Known limitation
+
+The CLI Admin API can't enter management entities whose name contains `/`. Outgoing routing connections are named
+like that (`routerB/172.21.0.2:4100`). They are listed with router name and remote address, but without details.
 
 Plan and progress: [`tasks/todo.md`](tasks/todo.md).
 

@@ -5,6 +5,7 @@ import com.swiftmq.mcp.access.ManagementReader.EntityView;
 import com.swiftmq.mcp.access.MgmtPath;
 import com.swiftmq.mcp.access.NavigationState;
 import com.swiftmq.mcp.access.SwiftMqAccessException;
+import com.swiftmq.mcp.access.SwiftMqGateway.ConnectionStatus;
 import com.swiftmq.mcp.catalog.Catalog;
 
 import java.time.Clock;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -49,7 +51,25 @@ public final class ToolContext {
 
     /** The router a call applies to (explicit, selected, or the only available one). */
     String router(Args args) {
-        return nav.resolveRouter(args.optString("router"), reader.gateway().availableRouters());
+        String requested = args.optString("router");
+        return nav.resolveRouter(requested, requested != null ? reader.gateway().availableRouters() : allRouters());
+    }
+
+    /**
+     * All available routers, for tools that cover the whole network. Never silently empty: without a connection
+     * that would look like a network without problems.
+     *
+     * @throws SwiftMqAccessException.NotConnected if not connected or no router is available yet
+     */
+    SortedSet<String> allRouters() {
+        ConnectionStatus s = reader.gateway().status();
+        if (s.state() != ConnectionStatus.State.CONNECTED)
+            throw new SwiftMqAccessException.NotConnected("Not connected to " + s.url()
+                    + (s.lastError() == null ? " (connecting)" : ": " + s.lastError()));
+        SortedSet<String> routers = reader.gateway().availableRouters();
+        if (routers.isEmpty())
+            throw new SwiftMqAccessException.NotConnected("Connected to " + s.url() + ", but no router is available yet");
+        return routers;
     }
 
     Optional<EntityView> read(String router, String path) {
@@ -66,7 +86,9 @@ public final class ToolContext {
 
     /**
      * The entries of a list context, each as {@code name} plus its properties. Entries that vanish between
-     * listing and reading (e.g. a consumer that just closed) are skipped.
+     * listing and reading (e.g. a consumer that just closed) are skipped. Entries whose name can't be addressed
+     * by the CLI (e.g. routing connections named {@code routerB/172.21.0.2:4100}: {@code cc} can't enter names
+     * containing '/') are returned with their name only and {@code "readable": false}.
      *
      * @return empty list if the list context doesn't exist
      */
@@ -75,13 +97,24 @@ public final class ToolContext {
         if (view.isEmpty())
             return List.of();
         List<Map<String, Object>> result = new ArrayList<>();
-        for (String name : view.get().children())
-            read(router, list.child(name)).ifPresent(e -> {
+        for (String name : view.get().children()) {
+            MgmtPath entry;
+            try {
+                entry = list.child(name);
+            } catch (SwiftMqAccessException.AccessDenied unaddressable) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("name", name);
+                row.put("readable", false);
+                result.add(row);
+                continue;
+            }
+            read(router, entry).ifPresent(e -> {
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("name", name);
                 row.putAll(e.properties());
                 result.add(row);
             });
+        }
         return result;
     }
 

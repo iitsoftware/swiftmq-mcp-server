@@ -106,7 +106,7 @@ final class QueueTools {
         Predicate<String> match = ToolContext.glob(args.string("pattern"));
         List<Map<String, Object>> found = new ArrayList<>();
         List<Map<String, Object>> errors = new ArrayList<>();
-        for (String router : ctx.reader.gateway().availableRouters()) {
+        for (String router : ctx.allRouters()) {
             try {
                 Optional<EntityView> usage = ctx.read(router, USAGE);
                 if (usage.isEmpty())

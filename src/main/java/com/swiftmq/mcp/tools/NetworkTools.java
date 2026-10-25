@@ -53,7 +53,7 @@ final class NetworkTools {
         if (!args.optBoolean("all", false))
             return summary(ctx, ctx.router(args));
         List<Map<String, Object>> routers = new ArrayList<>();
-        for (String router : ctx.reader.gateway().availableRouters()) {
+        for (String router : ctx.allRouters()) {
             try {
                 routers.add(summary(ctx, router));
             } catch (SwiftMqAccessException e) {

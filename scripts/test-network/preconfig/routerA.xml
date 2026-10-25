@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<router name="routerA" use-smart-tree="false">
+  <!-- JMS clients on the host reach routerA via the published port 14001 (NAT) -->
+  <swiftlet name="sys$jms">
+    <listeners>
+      <listener name="plainsocket" connectaddress="localhost" connectport="14001"/>
+    </listeners>
+  </swiftlet>
+  <swiftlet name="sys$routing">
+    <connectors>
+      <connector name="to-routerB" hostname="routerB" port="4100" retry-time="5000" _op="add"/>
+    </connectors>
+  </swiftlet>
+</router>

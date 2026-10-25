@@ -1,0 +1,29 @@
+# Test network for swiftmq-mcp-server: three CE routers in a chain A - B - C.
+# Only routerA's JMS port is published (host port 14001); B and C are reached through routing.
+#   docker compose up -d        # start
+#   docker compose down -v      # stop and remove
+name: swiftmq-mcp-test
+
+x-router: &router
+  image: iitsoftware/swiftmq-ce:13.2.3
+  volumes:
+    - ./preconfig:/swiftmq/testpreconfig:ro
+
+services:
+  routerA:
+    <<: *router
+    hostname: routerA
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerA.xml
+    ports:
+      - "14001:4001"
+  routerB:
+    <<: *router
+    hostname: routerB
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerB.xml
+  routerC:
+    <<: *router
+    hostname: routerC
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerC.xml

@@ -38,7 +38,7 @@ final class RouterTools {
         if (!args.optBoolean("all", false))
             return memory(ctx, ctx.router(args));
         List<Map<String, Object>> rows = new ArrayList<>();
-        for (String router : ctx.reader.gateway().availableRouters()) {
+        for (String router : ctx.allRouters()) {
             try {
                 rows.add(memory(ctx, router));
             } catch (SwiftMqAccessException e) {

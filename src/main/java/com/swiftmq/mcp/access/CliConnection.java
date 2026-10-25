@@ -27,6 +27,8 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
     private final Cli.Connector connector;
     private final Clock clock;
     private final ScheduledExecutorService connectExecutor;
+    /** Runs the blocking connect itself, so that a hanging attempt can be abandoned (one thread per stuck attempt). */
+    private final ExecutorService connectWorker;
     private final ReentrantLock lock = new ReentrantLock();
     private final SortedSet<String> routers = new ConcurrentSkipListSet<>();
     private final AtomicLong generation = new AtomicLong();
@@ -46,11 +48,14 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
         this.connector = connector;
         this.clock = clock;
         this.status = new ConnectionStatus(State.CONNECTING, settings.url(), settings.user(), null, clock.instant());
-        this.connectExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "swiftmq-connect");
-            t.setDaemon(true);
-            return t;
-        });
+        this.connectExecutor = Executors.newSingleThreadScheduledExecutor(r -> daemon(r, "swiftmq-connect"));
+        this.connectWorker = Executors.newCachedThreadPool(r -> daemon(r, "swiftmq-connect-attempt"));
+    }
+
+    private static Thread daemon(Runnable r, String name) {
+        Thread t = new Thread(r, name);
+        t.setDaemon(true);
+        return t;
     }
 
     /** Starts connecting in the background and returns immediately. */
@@ -63,9 +68,18 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
         if (closed)
             return;
         long gen = generation.incrementAndGet();
+        Future<Cli> attempt = connectWorker.submit(() -> connector.connect(this::onRouterEvent, () -> onConnectionLost(gen)));
         try {
             log.info("Connecting to {} as {}", settings.url(), settings.user());
-            Cli c = connector.connect(this::onRouterEvent, () -> onConnectionLost(gen));
+            Cli c;
+            try {
+                c = attempt.get(settings.requestTimeoutMs(), TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                abandon(attempt);
+                throw new Exception("no response within " + settings.requestTimeoutMs() + " ms");
+            } catch (ExecutionException e) {
+                throw e.getCause() instanceof Exception cause ? cause : e;
+            }
             String[] available = c.getAvailableRouters();
             if (available != null)
                 routers.addAll(Arrays.asList(available));
@@ -79,6 +93,19 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
             log.warn("Connecting to {} failed: {}; retrying in {}s", settings.url(), reason, backoff.toSeconds());
             scheduleReconnect();
         }
+    }
+
+    /** Gives up on a hanging attempt; if it still succeeds later, its connection is closed right away. */
+    private void abandon(Future<Cli> attempt) {
+        connectWorker.execute(() -> {
+            try {
+                Cli late = attempt.get();
+                log.info("Closing a connection that was established after its attempt had timed out");
+                late.close();
+            } catch (Exception ignored) {
+                // the attempt failed after all: nothing to clean up
+            }
+        });
     }
 
     private void scheduleReconnect() {
@@ -203,6 +230,7 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
     public void close() {
         closed = true;
         connectExecutor.shutdownNow();
+        connectWorker.shutdownNow();
         Cli c = cli;
         cli = null;
         if (c != null) {

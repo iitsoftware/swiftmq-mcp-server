@@ -91,10 +91,33 @@ class MoreToolsTest extends ToolTestBase {
         JsonNode t = ok("network_topology", Map.of());
         assertEquals(List.of(List.of("r1", "r2"), List.of("r1", "r4"), List.of("r2", "r3")), links(t.get("links")));
         String issues = t.get("issues").toString();
-        assertTrue(issues.contains("r3: 1 enabled connector(s) but no active routing connection"), issues);
+        assertTrue(issues.contains("r3: 1 of 1 enabled connector(s) have no active connection"), issues);
         assertTrue(issues.contains("one-way link: r2 lists r3, but r3 doesn't list r2"), issues);
         assertTrue(issues.contains("r4: connected to by other routers but not available"), issues);
         assertFalse(issues.contains("r1 lists r2"), issues);
+    }
+
+    @Test
+    void outgoingConnectionsWithSlashInTheNameAreListedNotRead() {
+        // real naming from a CE network: outgoing connector connections are "<router>/<host:port>"
+        cli.context("routerA", "/sys$routing/usage/connections", List.of("routerB/172.21.0.2:4100"), Map.of());
+        cli.context("routerB", "/sys$routing/usage/connections", List.of("routerA"), Map.of());
+        cli.context("routerB", "/sys$routing/usage/connections/routerA", List.of(), Map.of("routername", "routerA", "protocol-version", "750"));
+
+        JsonNode a = ok("list_routing_connections", Map.of("router", "routerA")).get("connections").get(0);
+        assertEquals("routerB", a.get("routername").asString());
+        assertEquals("172.21.0.2:4100", a.get("remoteAddress").asString());
+        assertEquals("outgoing", a.get("direction").asString());
+        assertFalse(a.get("readable").asBoolean());
+
+        JsonNode t = ok("network_topology", Map.of());
+        assertEquals(List.of(List.of("routerA", "routerB")), links(t.get("links")));
+        assertEquals("[]", t.get("issues").toString());
+
+        // routerB also has a connector, but its outgoing connection is gone; the incoming one from routerA doesn't hide that
+        cli.context("routerB", "/sys$routing/connectors", List.of("to-c"), Map.of());
+        cli.context("routerB", "/sys$routing/connectors/to-c", List.of(), Map.of("enabled", "true"));
+        assertEquals("[\"routerB: 1 of 1 enabled connector(s) have no active connection\"]", ok("network_topology", Map.of()).get("issues").toString());
     }
 
     void connection(String router, String peer) {
@@ -176,6 +199,19 @@ class MoreToolsTest extends ToolTestBase {
         assertEquals("/", ok("change_context", Map.of("path", "..")).get("currentContext").asString());
         assertFalse(gateway.reads.stream().anyMatch(p -> p.toLowerCase().contains("sys$mgmt") || p.toLowerCase().contains("sys$authentication")),
                 "denied paths never reach the gateway: " + gateway.reads);
+    }
+
+    @Test
+    void networkWideToolsNeverReportAnEmptyNetworkWhenNothingIsAvailable() {
+        gateway.available = new TreeSet<>();
+        for (String tool : List.of("network_topology", "network_health", "find_queue", "get_router_memory", "network_summary", "list_queues")) {
+            Map<String, Object> args = switch (tool) {
+                case "find_queue" -> Map.of("pattern", "*");
+                case "get_router_memory", "network_summary" -> Map.of("all", true);
+                default -> Map.of();
+            };
+            assertTrue(error(tool, args).contains("no router is available yet"), tool);
+        }
     }
 
     static List<List<String>> links(JsonNode array) {

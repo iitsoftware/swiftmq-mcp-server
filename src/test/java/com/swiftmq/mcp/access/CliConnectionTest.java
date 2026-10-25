@@ -16,29 +16,6 @@ class CliConnectionTest {
     static final Settings SETTINGS = new Settings("smqp://localhost:4001", "admin", "secret", "ConnectionFactory",
             500, 2000, Set.of(), null);
 
-    /** Hands out prepared CLIs (or failures) in order and keeps the callbacks of the last connect. */
-    static final class FakeConnector implements Cli.Connector {
-        final BlockingQueue<Object> results = new LinkedBlockingQueue<>();
-        volatile Cli.RouterListener routerListener;
-        volatile Runnable onConnectionLost;
-        final CountDownLatch release = new CountDownLatch(1);
-        volatile boolean blockFirst;
-
-        @Override
-        public Cli connect(Cli.RouterListener routerListener, Runnable onConnectionLost) throws Exception {
-            if (blockFirst) {
-                blockFirst = false;
-                release.await();
-            }
-            this.routerListener = routerListener;
-            this.onConnectionLost = onConnectionLost;
-            Object next = results.poll(5, TimeUnit.SECONDS);
-            if (next instanceof Exception e)
-                throw e;
-            return (Cli) next;
-        }
-    }
-
     final FakeConnector connector = new FakeConnector();
     CliConnection connection;
 
@@ -123,6 +100,23 @@ class CliConnectionTest {
         assertTrue(e.getMessage().contains("Connection refused"));
         await(() -> connection.status().state() == State.CONNECTED);   // after the 1 s backoff
         assertEquals(Set.of("router1"), connection.availableRouters());
+    }
+
+    @Test
+    void hangingConnectIsAbandonedAndRetried() {
+        // request timeout 2000 ms in SETTINGS: the hanging attempt is given up, the next one succeeds
+        connector.hangFirst = true;
+        FakeCli cli = tree();
+        connector.results.add(cli);
+        connection = new CliConnection(SETTINGS, new ContextGuard(Set.of()), connector, Clock.systemUTC()).start();
+        await(() -> connection.status().state() == State.DISCONNECTED);
+        assertTrue(connection.status().lastError().contains("no response within 2000 ms"), connection.status().lastError());
+        await(() -> connection.status().state() == State.CONNECTED);
+        assertEquals(Set.of("router1"), connection.availableRouters());
+
+        connector.hang.countDown();   // the abandoned attempt completes late: its connection is closed, not used
+        await(() -> connector.lateCli.closed);
+        assertFalse(connection.availableRouters().contains("late"));
     }
 
     @Test

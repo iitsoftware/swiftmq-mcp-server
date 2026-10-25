@@ -29,7 +29,7 @@ final class HealthTools {
 
     static Map<String, Object> health(ToolContext ctx, Args args) {
         String only = args.optString("router");
-        Collection<String> routers = only != null ? List.of(ctx.router(args)) : ctx.reader.gateway().availableRouters();
+        Collection<String> routers = only != null ? List.of(ctx.router(args)) : ctx.allRouters();
         List<String> issues = new ArrayList<>();
         List<Map<String, Object>> rows = new ArrayList<>();
         for (String router : routers) {

@@ -420,18 +420,28 @@ Package `com.swiftmq.mcp.tools`:
   - TTL cache: reads are fast enough on the local router; revisit with a real network if fan-out tools get slow
 - **Untested with real data** (single local router): routing connections/table/topology, `rt$` backlogs. Needs the 3-router CE chain (Phase 4)
 
-### Phase 4 — Verification
-- [ ] Unit tests: validator (injection attempts with `;`, spaces, quotes), `CommandBuilder` emits only `sr`/`cc`, `ContextGuard`, command builder, redaction, `NavigationState`, fake gateway for each tool
-- [ ] **stdout purity test**: run every tool (including error paths and a router going down) through the stdio transport and assert stdout contains only valid JSON-RPC
-- [ ] Integration test against a CE chain A–B–C (multi-hop routes), with an active producer/consumer and a durable subscriber: every tool, plus a router going down/reconnecting and connector-without-connection detection
-- [ ] Startup with the router unreachable → `initialize` OK, tools report "not connected", recovers once the router is up
-- [ ] Test with real MCP clients: MCP Inspector, Claude Code, Claude Desktop
-- [ ] Security check:
-  - Every attempt to reach a denied swiftlet is rejected: `/sys$authentication`, `sys$Authentication`, `/sys$mgmt/roles`, `/sys$timer`, `/sys$queuemanager/../sys$mgmt`, relative paths from `/`, trailing `/`.
-  - Denied swiftlets never show up in `list_swiftlets`.
-  - No tool can mutate state, and the command log shows only `sr`/`cc` (no `view`, `gc`, …).
-  - No redacted property appears in any output.
-  - Credentials don't appear in logs or in `connection_info`.
+### Phase 4 — Verification ✅ (2026-10-25)
+- [x] Unit tests (validator/injection, `ContextGuard`, `CommandBuilder`, redaction, `NavigationState`, all tools on a fake tree)
+- [x] **`SecurityTest`**: all 21 tools, with normal and hostile arguments, through the real `CliConnection` against a fake router with traps (`sys$authentication`/`sys$mgmt`/`sys$timer` containing secrets, passwords in connectors/listeners)
+  - every command is `sr <router>` or `cc "<path>"`
+  - no denied top-level context is ever entered
+  - no secret appears in any output
+- [x] **stdout purity at process level** (`StdioProcessTest`):
+  - all 21 tools against an unreachable router (every error path) and against the live local router
+  - stdout contains exactly one JSON-RPC response per request and nothing else
+- [x] **Test network** `scripts/test-network/` (Docker Compose, CE 13.2.3): `routerA - routerB - routerC`, `use-smart-tree="false"`, routerA's JMS on `localhost:14001` (NAT `connectaddress`/`connectport`)
+- [x] **`RouterNetworkTest`** (needs `SWIFTMQ_TEST_NETWORK=true`; stable over 2 runs, ~10-20 s):
+  - healthy topology A–B–C; routing table A→C = `routerB;routerC`; router info of C read through A
+  - routerC stopped: it disappears from the available routers, routerB's broken connector is detected, and messages sent to `testqueue@routerC` show up as `rt$routerC` backlog on A in `network_health`
+  - routerC started again: available again, backlog drained, messages delivered
+- [x] MCP Inspector CLI: `tools/list` against the local router works. Tool calls via the Inspector were blocked by the local permission policy (external npm code) → left to the user
+- **Bugs found and fixed in Phase 4:**
+  1. Network-wide tools returned an empty, issue-free network while not connected → they now fail with "not connected" (`ToolContext.allRouters`)
+  2. A hanging connect attempt (Docker port proxy accepting TCP before the router is up) blocked reconnects forever → each attempt now has a time limit (request timeout); late connections are closed
+  3. Routing connection entries for outgoing connector connections are named `<router>/<host:port>`. **The CLI can't `cc` into names containing '/'** (quoted, escaped and encoded all fail) → such entries are listed with `readable: false`; router name and remote address come from the name
+  4. Topology now compares enabled connectors with *outgoing* connections per router, so a broken connector is found even if the router still has incoming connections
+- **SwiftMQ follow-up (owner: SwiftMQ):** allow `cc` into entity names that contain '/', or avoid '/' in routing connection names
+- [ ] Claude Desktop / Claude Code test with the real client (user)
 
 ### Phase 5 — Packaging & docs
 - [ ] Shaded jar release, README: install, Claude Desktop / Claude Code config snippets, settings reference, SwiftMQ read-only admin-role snippet (with `exclude` filters), troubleshooting (logs, stdout, **smart tree → missing consumer/producer details**)

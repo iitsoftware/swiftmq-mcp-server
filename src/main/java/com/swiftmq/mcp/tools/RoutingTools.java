@@ -23,7 +23,8 @@ final class RoutingTools {
         return List.of(
                 tool("list_routing_connections", "Routing connections",
                         "Lists the active router-to-router connections of a router: connected router name, connect time, protocol "
-                                + "version and whether XA (2-phase commit) is used.",
+                                + "version and whether XA (2-phase commit) is used. Outgoing connections (via a connector) show the "
+                                + "router name and remote address only, because the CLI can't read their details.",
                         schema(),
                         args -> connections(ctx, args)),
                 tool("get_routing_table", "Routing table",
@@ -37,7 +38,7 @@ final class RoutingTools {
                         args -> routingConfig(ctx, args)),
                 tool("network_topology", "Network topology",
                         "Builds the topology of the whole router network from the routing connections of every available router: "
-                                + "nodes, links, and issues such as enabled connectors without an active connection, one-way links, "
+                                + "nodes, links, and issues such as enabled connectors without an active (outgoing) connection, one-way links, "
                                 + "and routers that other routers are connected to but that aren't available.",
                         "{\"type\":\"object\",\"properties\":{}}",
                         args -> topology(ctx)));
@@ -47,8 +48,28 @@ final class RoutingTools {
         String router = ctx.router(args);
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("router", router);
-        r.put("connections", ctx.entries(router, CONNECTIONS));
+        r.put("connections", connectionEntries(ctx, router));
         return r;
+    }
+
+    /**
+     * Routing connections. Outgoing connector connections are named {@code <router>/<host:port>} and can't be read
+     * through the CLI; their router name and remote address are taken from the name.
+     */
+    static List<Map<String, Object>> connectionEntries(ToolContext ctx, String router) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> c : ctx.entries(router, CONNECTIONS)) {
+            Map<String, Object> row = new LinkedHashMap<>(c);
+            String name = c.get("name").toString();
+            int slash = name.indexOf('/');
+            if (slash > 0) {
+                row.putIfAbsent("routername", name.substring(0, slash));
+                row.put("remoteAddress", name.substring(slash + 1));
+                row.put("direction", "outgoing");
+            }
+            result.add(row);
+        }
+        return result;
     }
 
     static Map<String, Object> routingTable(ToolContext ctx, Args args) {
@@ -94,7 +115,7 @@ final class RoutingTools {
     }
 
     static Map<String, Object> topology(ToolContext ctx) {
-        SortedSet<String> available = ctx.reader.gateway().availableRouters();
+        SortedSet<String> available = ctx.allRouters();
         Map<String, Set<String>> links = new TreeMap<>();
         Set<String> seen = new TreeSet<>(available);
         List<Map<String, Object>> nodes = new ArrayList<>();
@@ -104,17 +125,23 @@ final class RoutingTools {
             node.put("router", router);
             try {
                 Set<String> peers = new TreeSet<>();
-                for (Map<String, Object> c : ctx.entries(router, CONNECTIONS))
+                long outgoing = 0;
+                for (Map<String, Object> c : connectionEntries(ctx, router)) {
                     if (c.get("routername") != null)
                         peers.add(c.get("routername").toString());
+                    if ("outgoing".equals(c.get("direction")))
+                        outgoing++;
+                }
                 links.put(router, peers);
                 seen.addAll(peers);
                 long enabledConnectors = ctx.entries(router, ROUTING.child("connectors")).stream()
                         .filter(c -> !Boolean.FALSE.equals(c.get("enabled"))).count();
                 node.put("connectedTo", peers);
                 node.put("enabledConnectors", enabledConnectors);
-                if (enabledConnectors > 0 && peers.isEmpty())
-                    issues.add(router + ": " + enabledConnectors + " enabled connector(s) but no active routing connection");
+                node.put("outgoingConnections", outgoing);
+                if (enabledConnectors > outgoing)
+                    issues.add(router + ": " + (enabledConnectors - outgoing) + " of " + enabledConnectors
+                            + " enabled connector(s) have no active connection");
             } catch (SwiftMqAccessException e) {
                 node.put("error", e.getMessage());
                 issues.add(router + ": " + e.getMessage());
