@@ -9,9 +9,28 @@ SwiftMQ credentials** via the CLI Admin API to a router, and from there it sees 
 - Transport: stdio (the client starts the server as a child process).
 - Supported: SwiftMQ **13.x Community Edition (CE)**.
 
-> **Status: early development.** The server starts, handles the MCP handshake and loads its settings, but it
-> **does not offer any tools yet**, so clients show it as connected with 0 tools. The SwiftMQ tools (queues, topics,
-> routing, network, memory) are being built next. See [`tasks/todo.md`](tasks/todo.md).
+> **Status: early development.** The first tools work (queues, topics, routers, memory). More are being built:
+> durable subscribers, routing, network connections, health overview and generic browsing. See
+> [`tasks/todo.md`](tasks/todo.md).
+
+## Tools
+
+| Tool | What it shows |
+|---|---|
+| `connection_info` | Connection URL, user, state (incl. last error), available routers, selected router |
+| `list_routers` | Routers currently available in the router network |
+| `select_router` | Sets the default router for the following calls |
+| `list_queues` | Active queues with messagecount, produce/consume rates, totals, latency; sorted by messagecount; glob filter |
+| `get_queue` | One queue: usage, configuration (regular/clustered/composite incl. bindings), receivers/senders/browsers |
+| `list_topics` | Topics with active and durable subscriber counts |
+| `get_router_memory` | Free/total/used memory of one router, or of all routers |
+| `get_router_info` | Release, OS, startup time, smart tree setting, memory, available swiftlets |
+
+Every tool takes an optional `router`. Without it, the tool uses the selected router, or the only available one.
+All tools are marked read-only.
+
+**Consumer details** (receivers, senders, browsers) are only visible when the router runs with
+`use-smart-tree="false"` on the `<router>` element in `routerconfig.xml`. Otherwise the tools say so and give this hint.
 
 ## Requirements
 
@@ -76,16 +95,14 @@ Optional config file. Copy `config/swiftmq-mcp.json.example` to `config/swiftmq-
 
 ## Quick test without an AI client
 
+`scripts/smoke-test.jsonl` contains a handshake, `tools/list` and three tool calls. Pipe it into the server:
+
 ```bash
-( printf '%s\n' \
-    '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}' \
-    '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
-    '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
-  sleep 2 ) \
-  | SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+{ cat scripts/smoke-test.jsonl; sleep 3; } | SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
 ```
 
-stdout shows two JSON-RPC responses (server info, tool list). Logs go to stderr and the log file.
+stdout shows one JSON-RPC response per request (the order may vary; match them by `id`). Logs go to stderr and the
+log file. Add `2>/dev/null` to see only the responses.
 
 The `sleep` keeps stdin open until the answers are written. Per the MCP spec, closing stdin ends the session, so
 requests that are still unanswered at that moment get no response. Real clients keep stdin open for the whole session.
@@ -285,9 +302,10 @@ Docs: https://learn.microsoft.com/en-us/windows/ai/mcp/overview
 
 ## Troubleshooting
 
-- **Server doesn't start / 0 tools:** 0 tools is expected at the current stage. If it doesn't start, check the
-  client's MCP log and the server log `~/.swiftmq-mcp/logs/server.log`. Invalid settings are reported on stderr
-  together with the usage text.
+- **Server doesn't start:** check the client's MCP log and the server log `~/.swiftmq-mcp/logs/server.log`.
+  Invalid settings are reported on stderr together with the usage text.
+- **Tools report "Not connected":** call `connection_info`. It shows the state and the last connection error. The
+  server keeps retrying in the background (1 s up to 30 s).
 - **`java` not found:** use the absolute path to a Java 21+ `java` binary as `command`.
 - **Nothing on stdout but errors in the client:** the server writes only JSON-RPC to stdout and everything else to
   stderr/log. Don't wrap it in scripts that print to stdout.

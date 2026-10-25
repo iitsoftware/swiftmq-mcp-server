@@ -2,11 +2,15 @@ package com.swiftmq.mcp;
 
 import com.swiftmq.mcp.access.CliConnection;
 import com.swiftmq.mcp.access.ContextGuard;
+import com.swiftmq.mcp.access.ManagementReader;
+import com.swiftmq.mcp.access.NavigationState;
+import com.swiftmq.mcp.catalog.Catalog;
 import com.swiftmq.mcp.config.Settings;
 import com.swiftmq.mcp.config.SettingsException;
 import com.swiftmq.mcp.config.SettingsResolver;
 import com.swiftmq.mcp.server.SwiftMqMcpServer;
-import com.swiftmq.mcp.server.ToolRegistry;
+import com.swiftmq.mcp.tools.SwiftMqTools;
+import com.swiftmq.mcp.tools.ToolContext;
 import io.modelcontextprotocol.server.McpSyncServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +55,12 @@ public final class Main {
         // Connects in the background: the MCP handshake never waits for the router
         CliConnection connection = new CliConnection(settings, new ContextGuard(settings.extraDeniedContexts())).start();
 
+        Catalog catalog = Catalog.load();
+        ManagementReader reader = new ManagementReader(connection, catalog, settings.maxListItems());
+        ToolContext tools = new ToolContext(reader, new NavigationState(), catalog, settings.maxListItems());
+
         CountDownLatch stdinClosed = new CountDownLatch(1);
-        McpSyncServer server = SwiftMqMcpServer.start(new EofSignalingInputStream(System.in, stdinClosed), stdout, new ToolRegistry());
+        McpSyncServer server = SwiftMqMcpServer.start(new EofSignalingInputStream(System.in, stdinClosed), stdout, SwiftMqTools.registry(tools));
         // Also on SIGTERM: releases the router's admin-tool lease right away
         Runtime.getRuntime().addShutdownHook(new Thread(connection::close, "shutdown"));
 

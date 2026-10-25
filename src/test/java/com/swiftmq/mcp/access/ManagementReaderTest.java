@@ -12,28 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ManagementReaderTest {
     static final Catalog CATALOG = Catalog.load();
 
-    /** Gateway answering from a FakeCli tree, without connection handling. */
     static SwiftMqGateway gateway(FakeCli cli) {
-        return new SwiftMqGateway() {
-            public ConnectionStatus status() {
-                return null;
-            }
-
-            public SortedSet<String> availableRouters() {
-                return new TreeSet<>(cli.trees.keySet());
-            }
-
-            public Optional<ContextSnapshot> read(String router, MgmtPath path, Collection<String> names) {
-                var ctx = cli.trees.getOrDefault(router, Map.of()).get(path.toString());
-                if (ctx == null)
-                    return Optional.empty();
-                Map<String, String> props = new LinkedHashMap<>();
-                for (String n : names)
-                    if (ctx.properties().containsKey(n))
-                        props.put(n, ctx.properties().get(n));
-                return Optional.of(new ContextSnapshot(path, ctx.entities(), props));
-            }
-        };
+        return new FakeGateway(cli);
     }
 
     @Test

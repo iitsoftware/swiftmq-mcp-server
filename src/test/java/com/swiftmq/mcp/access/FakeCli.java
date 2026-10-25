@@ -4,24 +4,24 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** In-memory stand-in for the SwiftMQ CLI: a management tree per router, and a log of every command. */
-final class FakeCli implements Cli {
-    record Context(List<String> entities, Map<String, String> properties) {
+public final class FakeCli implements Cli {
+    public record Context(List<String> entities, Map<String, String> properties) {
     }
 
-    final Map<String, Map<String, Context>> trees = new LinkedHashMap<>();
-    final List<String> commands = new CopyOnWriteArrayList<>();
+    public final Map<String, Map<String, Context>> trees = new LinkedHashMap<>();
+    public final List<String> commands = new CopyOnWriteArrayList<>();
     volatile boolean closed;
     volatile long commandDelayMs;
 
     private String router;
     private String context;
 
-    FakeCli router(String name) {
+    public FakeCli router(String name) {
         trees.putIfAbsent(name, new LinkedHashMap<>());
         return this;
     }
 
-    FakeCli context(String router, String path, List<String> entities, Map<String, String> properties) {
+    public FakeCli context(String router, String path, List<String> entities, Map<String, String> properties) {
         router(router).trees.get(router).put(path, new Context(entities, properties));
         return this;
     }

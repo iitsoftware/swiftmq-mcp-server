@@ -395,14 +395,22 @@ Package `com.swiftmq.mcp.access`:
 - [x] Manual check: the jar connects to the local router (`available routers: [router]`) and closes on EOF. With an unreachable port it retries with backoff, and the server stays up
 - Deferred to Phase 3 (only needed by fan-out/list tools): TTL cache, pagination cursors, delta baselines, smart-tree detection cache
 
-### Phase 3 — Tools
-- [ ] Smart-tree detection per router (cached `/.env use-smart-tree`), TTL cache, cursors, delta baselines
-- [ ] `connection_info`, `select_router`, `change_context`
-- [ ] `list_routers`, `list_queues`, `get_queue`, `find_queue`
-- [ ] `list_topics`, `get_topic`, `list_durable_subscribers`
+### Phase 3 — Tools (in progress)
+Batch 1 ✅ (2026-10-25), package `com.swiftmq.mcp.tools`:
+- `ToolFactory`: JSON results, `isError` for user-facing errors, a log line per call, read-only annotations
+- `ToolContext`: router resolution, entries helper, smart-tree cache (5 min), glob
+- 8 tools: `connection_info`, `list_routers`, `select_router`, `list_queues`, `get_queue`, `list_topics`, `get_router_memory`, `get_router_info`
+- Verified via the jar against the local CE router (all 8 tools + error cases)
+- `ToolsTest` (11), 90 tests total
+
+Remaining:
+- [x] Smart-tree detection per router (cached `/.env use-smart-tree`) · [ ] TTL cache, cursors, delta baselines
+- [x] `connection_info`, `select_router` · [ ] `change_context`
+- [x] `list_routers`, `list_queues`, `get_queue` · [ ] `find_queue`
+- [x] `list_topics` · [ ] `get_topic`, `list_durable_subscribers`
 - [ ] `list_routing_connections`, `get_routing_table`, `get_routing_config`, `network_topology`
 - [ ] `list_network_connections`, `network_summary`
-- [ ] `get_router_memory`, `get_router_info`
+- [x] `get_router_memory`, `get_router_info`
 - [ ] `network_health`, `list_swiftlets`, `browse_context`
 - [ ] Delta baselines in `list_queues` / `network_health`; pagination cursors
 - [ ] Per-call log line

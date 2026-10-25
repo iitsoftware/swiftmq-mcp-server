@@ -45,6 +45,6 @@ final class ValueConverter {
                 // not a Date.toString() value
             }
         }
-        return raw;
+        return raw.strip();
     }
 }
