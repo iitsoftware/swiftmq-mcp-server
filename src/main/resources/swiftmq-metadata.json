@@ -1,0 +1,4726 @@
+{
+  "release" : "13.02.04",
+  "editions" : {
+    "ce" : {
+      "sys$amqp" : {
+        "kind" : "ENTITY",
+        "display" : "AMQP Swiftlet",
+        "description" : "AMQP Swiftlet",
+        "properties" : {
+          "allow-same-containerid" : {
+            "type" : "Boolean",
+            "display" : "Allow same Container Id",
+            "description" : "If set to false, it is handled like a JMS Client Id",
+            "defaultValue" : "true"
+          },
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Collect Interval Messages/Sec",
+            "defaultValue" : "1000"
+          }
+        },
+        "entities" : {
+          "declarations" : {
+            "kind" : "ENTITY",
+            "display" : "Declarations",
+            "description" : "Declarations Section",
+            "entities" : {
+              "transformer" : {
+                "kind" : "ENTITY",
+                "display" : "Transformer",
+                "description" : "Message Transformer",
+                "lists" : {
+                  "default-inbound-transformers" : {
+                    "kind" : "LIST",
+                    "display" : "Default Inbound Transformers",
+                    "description" : "Default Inbound Transformers",
+                    "template" : {
+                      "kind" : "ENTITY",
+                      "display" : "Default Inbound Transformer",
+                      "description" : "Default Inbound Transformer",
+                      "properties" : {
+                        "class-name" : {
+                          "type" : "String",
+                          "display" : "Class Name",
+                          "description" : "Class Name",
+                          "defaultValue" : "com.swiftmq.impl.amqp.amqp.v01_00_00.transformer.JMSMappingInboundTransformer",
+                          "mandatory" : true
+                        }
+                      },
+                      "lists" : {
+                        "properties" : {
+                          "kind" : "LIST",
+                          "display" : "Properties",
+                          "description" : "Properties",
+                          "template" : {
+                            "kind" : "ENTITY",
+                            "display" : "Property",
+                            "description" : "Property",
+                            "properties" : {
+                              "value" : {
+                                "type" : "String",
+                                "display" : "Property Value",
+                                "description" : "Property Value",
+                                "mandatory" : true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default-outbound-transformers" : {
+                    "kind" : "LIST",
+                    "display" : "Default Outbound Transformers",
+                    "description" : "Default Outbound Transformers",
+                    "template" : {
+                      "kind" : "ENTITY",
+                      "display" : "Default Outbound Transformer",
+                      "description" : "Default Outbound Transformer",
+                      "properties" : {
+                        "class-name" : {
+                          "type" : "String",
+                          "display" : "Class Name",
+                          "description" : "Class Name",
+                          "defaultValue" : "com.swiftmq.impl.amqp.amqp.v01_00_00.transformer.JMSMappingOutboundTransformer",
+                          "mandatory" : true
+                        }
+                      },
+                      "lists" : {
+                        "properties" : {
+                          "kind" : "LIST",
+                          "display" : "Properties",
+                          "description" : "Properties",
+                          "template" : {
+                            "kind" : "ENTITY",
+                            "display" : "Property",
+                            "description" : "Property",
+                            "properties" : {
+                              "value" : {
+                                "type" : "String",
+                                "display" : "Property Value",
+                                "description" : "Property Value",
+                                "mandatory" : true
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "destination-transformers" : {
+                    "kind" : "LIST",
+                    "display" : "Destination Transformers",
+                    "description" : "Transformer Declaration per Queue/Topic",
+                    "template" : {
+                      "kind" : "ENTITY",
+                      "display" : "Destination Transformer",
+                      "description" : "Transformer Declaration of a Queue/Topic",
+                      "lists" : {
+                        "inbound-transformers" : {
+                          "kind" : "LIST",
+                          "display" : "Inbound Transformers",
+                          "description" : "Inbound Transformers",
+                          "template" : {
+                            "kind" : "ENTITY",
+                            "display" : "Inbound Transformer",
+                            "description" : "Inbound Transformer",
+                            "properties" : {
+                              "class-name" : {
+                                "type" : "String",
+                                "display" : "Class Name",
+                                "description" : "Class Name",
+                                "defaultValue" : "com.swiftmq.impl.amqp.amqp.v01_00_00.transformer.JMSMappingInboundTransformer",
+                                "mandatory" : true
+                              }
+                            },
+                            "lists" : {
+                              "properties" : {
+                                "kind" : "LIST",
+                                "display" : "Properties",
+                                "description" : "Properties",
+                                "template" : {
+                                  "kind" : "ENTITY",
+                                  "display" : "Property",
+                                  "description" : "Property",
+                                  "properties" : {
+                                    "value" : {
+                                      "type" : "String",
+                                      "display" : "Property Value",
+                                      "description" : "Property Value",
+                                      "mandatory" : true
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "outbound-transformers" : {
+                          "kind" : "LIST",
+                          "display" : "Outbound Transformers",
+                          "description" : "Outbound Transformers",
+                          "template" : {
+                            "kind" : "ENTITY",
+                            "display" : "Outbound Transformer",
+                            "description" : "Outbound Transformer",
+                            "properties" : {
+                              "class-name" : {
+                                "type" : "String",
+                                "display" : "Class Name",
+                                "description" : "Class Name",
+                                "defaultValue" : "com.swiftmq.impl.amqp.amqp.v01_00_00.transformer.JMSMappingOutboundTransformer",
+                                "mandatory" : true
+                              }
+                            },
+                            "lists" : {
+                              "properties" : {
+                                "kind" : "LIST",
+                                "display" : "Properties",
+                                "description" : "Properties",
+                                "template" : {
+                                  "kind" : "ENTITY",
+                                  "display" : "Property",
+                                  "description" : "Property",
+                                  "properties" : {
+                                    "value" : {
+                                      "type" : "String",
+                                      "display" : "Property Value",
+                                      "description" : "Property Value",
+                                      "mandatory" : true
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "lists" : {
+              "connection-templates" : {
+                "kind" : "LIST",
+                "display" : "Connection Templates",
+                "description" : "Templates for Connections",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Connection Template",
+                  "description" : "Connection Template",
+                  "properties" : {
+                    "socketfactory-class" : {
+                      "type" : "String",
+                      "display" : "Socketfactory Class",
+                      "description" : "Socketfactory Class",
+                      "defaultValue" : "com.swiftmq.net.PlainSocketFactory"
+                    },
+                    "use-tcp-no-delay" : {
+                      "type" : "Boolean",
+                      "display" : "Use TCP No Delay",
+                      "description" : "Use Tcp No Delay",
+                      "defaultValue" : "true"
+                    },
+                    "idle-timeout" : {
+                      "type" : "Long",
+                      "display" : "Idle Timeout",
+                      "description" : "Inactivity timeout (ms) after which a Connection is disconnected",
+                      "defaultValue" : "90000"
+                    },
+                    "max-frame-size" : {
+                      "type" : "Long",
+                      "display" : "Maximum Frame Size",
+                      "description" : "Maximum Frame Size",
+                      "defaultValue" : "2147483647",
+                      "min" : "0",
+                      "max" : "2147483647"
+                    },
+                    "max-message-size" : {
+                      "type" : "Long",
+                      "display" : "Maximum Message Size",
+                      "description" : "Maximum Message Size",
+                      "defaultValue" : "10485760",
+                      "min" : "0",
+                      "max" : "2147483647"
+                    },
+                    "max-channel-number" : {
+                      "type" : "Integer",
+                      "display" : "Maximum Channel Number",
+                      "description" : "Maximum Channel Number",
+                      "defaultValue" : "65535",
+                      "min" : "0",
+                      "max" : "65535"
+                    },
+                    "target-link-credit" : {
+                      "type" : "Long",
+                      "display" : "Target Link Credit",
+                      "description" : "Link Credit for Targets",
+                      "defaultValue" : "20",
+                      "min" : "1",
+                      "max" : "2147483647"
+                    },
+                    "max-handle-number" : {
+                      "type" : "Long",
+                      "display" : "Maximum Handle Number",
+                      "description" : "Maximum Handle Number",
+                      "defaultValue" : "2147483647",
+                      "min" : "0",
+                      "max" : "2147483647"
+                    },
+                    "incoming-window-size" : {
+                      "type" : "Integer",
+                      "display" : "Incoming Window Size",
+                      "description" : "Maximum Number of incoming unsettled Transfer Frames",
+                      "defaultValue" : "100",
+                      "min" : "1",
+                      "max" : "2147483647"
+                    },
+                    "outgoing-window-size" : {
+                      "type" : "Integer",
+                      "display" : "Outgoing Window Size",
+                      "description" : "Maximum Number of outgoing unsettled Transfer Frames",
+                      "defaultValue" : "100",
+                      "min" : "1",
+                      "max" : "2147483647"
+                    },
+                    "reject-disconnect-delay" : {
+                      "type" : "Long",
+                      "display" : "Reject Disconnect Delay",
+                      "description" : "Time (ms) after which a rejected Connection is closed",
+                      "defaultValue" : "5000",
+                      "min" : "1000"
+                    },
+                    "router-input-buffer-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Input Buffer Size",
+                      "description" : "Router Network Input Buffer Size",
+                      "defaultValue" : "131072",
+                      "min" : "1024"
+                    },
+                    "router-input-extend-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Input Extend Size",
+                      "description" : "Router Network Input Extend Size",
+                      "defaultValue" : "65536",
+                      "min" : "1024"
+                    },
+                    "router-output-buffer-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Output Buffer Size",
+                      "description" : "Router Network Output Buffer Size",
+                      "defaultValue" : "131072",
+                      "min" : "1024"
+                    },
+                    "router-output-extend-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Output Extend Size",
+                      "description" : "Router Network Output Extend Size",
+                      "defaultValue" : "65536",
+                      "min" : "1024"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lists" : {
+          "listeners" : {
+            "kind" : "LIST",
+            "display" : "Listeners",
+            "description" : "Listener Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Listener",
+              "description" : "Listener Definition",
+              "properties" : {
+                "bindaddress" : {
+                  "type" : "String",
+                  "display" : "Bind IP Address",
+                  "description" : "Listener Bind IP Address",
+                  "readOnly" : true
+                },
+                "port" : {
+                  "type" : "Integer",
+                  "display" : "Port",
+                  "description" : "Listener Port",
+                  "defaultValue" : "5672",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "max-connections" : {
+                  "type" : "Integer",
+                  "display" : "Maximum Connections",
+                  "description" : "Maximum Connections for Listener",
+                  "defaultValue" : "-1",
+                  "mandatory" : true
+                },
+                "sasl-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "SASL enabled",
+                  "description" : "Enabled/Disabled SASL Authentication",
+                  "defaultValue" : "true"
+                },
+                "connection-template" : {
+                  "type" : "String",
+                  "display" : "Connection Template",
+                  "description" : "Connection Template to use",
+                  "defaultValue" : "default",
+                  "mandatory" : true
+                }
+              },
+              "lists" : {
+                "host-access-list" : {
+                  "kind" : "LIST",
+                  "display" : "Host Access List",
+                  "description" : "Host Access List",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Host Access Entry",
+                    "description" : "Host Access Entry"
+                  }
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Active AMQP Connections",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Active AMQP Connection",
+              "description" : "Active AMQP Connection",
+              "properties" : {
+                "container-id" : {
+                  "type" : "String",
+                  "display" : "Container Id",
+                  "description" : "Container Id"
+                },
+                "connect-time" : {
+                  "type" : "String",
+                  "display" : "Connect Time",
+                  "description" : "Connect Time"
+                },
+                "msgs-received" : {
+                  "type" : "Integer",
+                  "display" : "Received Msgs/s ",
+                  "description" : "Messages/Sec received from Connection",
+                  "defaultValue" : "0"
+                },
+                "msgs-sent" : {
+                  "type" : "Integer",
+                  "display" : "Sent Msgs/s",
+                  "description" : "Messages/Sec sent to Connection",
+                  "defaultValue" : "0"
+                },
+                "total-received" : {
+                  "type" : "Integer",
+                  "display" : "Total Received Msgs",
+                  "description" : "Total Number of Messages received from Connection",
+                  "defaultValue" : "0"
+                },
+                "total-sent" : {
+                  "type" : "Integer",
+                  "display" : "Total Sent Msgs",
+                  "description" : "Total Number of Messages sent to Connection",
+                  "defaultValue" : "0"
+                },
+                "username" : {
+                  "type" : "String",
+                  "display" : "User Name",
+                  "description" : "User Name"
+                },
+                "amqp-version" : {
+                  "type" : "String",
+                  "display" : "AMQP Version",
+                  "description" : "AMQP Version"
+                }
+              },
+              "lists" : {
+                "sessions" : {
+                  "kind" : "LIST",
+                  "display" : "Sessions",
+                  "description" : "Sessions created by this Connection",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Session",
+                    "description" : "Session",
+                    "properties" : {
+                      "remote-channel" : {
+                        "type" : "Integer",
+                        "display" : "Remote Channel",
+                        "description" : "Remote Channel",
+                        "defaultValue" : "-1"
+                      },
+                      "next-incoming-id" : {
+                        "type" : "Long",
+                        "display" : "Next Incoming Id",
+                        "description" : "Next Incoming Id",
+                        "defaultValue" : "0"
+                      },
+                      "next-outgoing-id" : {
+                        "type" : "Long",
+                        "display" : "Next Outgoing Id",
+                        "description" : "Next Outgoing Id",
+                        "defaultValue" : "0"
+                      },
+                      "incoming-window" : {
+                        "type" : "Long",
+                        "display" : "Incoming Window",
+                        "description" : "Incoming Window",
+                        "defaultValue" : "0"
+                      },
+                      "outgoing-window" : {
+                        "type" : "Long",
+                        "display" : "Outgoing Window",
+                        "description" : "Outgoing Window",
+                        "defaultValue" : "0"
+                      },
+                      "remote-incoming-window" : {
+                        "type" : "Long",
+                        "display" : "Remote Incoming Window",
+                        "description" : "Remote Incoming Window",
+                        "defaultValue" : "0"
+                      },
+                      "remote-outgoing-window" : {
+                        "type" : "Long",
+                        "display" : "Remote Outgoing Window",
+                        "description" : "Remote Outgoing Window",
+                        "defaultValue" : "0"
+                      }
+                    },
+                    "lists" : {
+                      "targetlinks" : {
+                        "kind" : "LIST",
+                        "display" : "Target Links",
+                        "description" : "Target Links created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Target Link",
+                          "description" : "Target Link",
+                          "properties" : {
+                            "remote-address" : {
+                              "type" : "String",
+                              "display" : "Remote Address",
+                              "description" : "Remote Address (Destination)"
+                            },
+                            "local-address" : {
+                              "type" : "String",
+                              "display" : "Local Address",
+                              "description" : "Local Address (Destination)"
+                            },
+                            "link-credit" : {
+                              "type" : "Long",
+                              "display" : "Link Credit",
+                              "description" : "Current Link Credit",
+                              "defaultValue" : "-1"
+                            },
+                            "delivery-count" : {
+                              "type" : "Long",
+                              "display" : "Delivery Count",
+                              "description" : "Current Delivery Count",
+                              "defaultValue" : "0"
+                            },
+                            "messages-received" : {
+                              "type" : "Long",
+                              "display" : "Number Messages Received",
+                              "description" : "Number Messages Received",
+                              "defaultValue" : "0"
+                            },
+                            "unsettled-transfers" : {
+                              "type" : "Integer",
+                              "display" : "Number unsettled Transfers",
+                              "description" : "Number unsettled Transfers",
+                              "defaultValue" : "0"
+                            }
+                          }
+                        }
+                      },
+                      "sourcelinks" : {
+                        "kind" : "LIST",
+                        "display" : "Source Links",
+                        "description" : "Source Links created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Source Link",
+                          "description" : "Source Link",
+                          "properties" : {
+                            "local-address" : {
+                              "type" : "String",
+                              "display" : "Local Address",
+                              "description" : "Local Address (Destination)"
+                            },
+                            "remote-address" : {
+                              "type" : "String",
+                              "display" : "Remote Address",
+                              "description" : "Remote Address (Destination)"
+                            },
+                            "link-credit" : {
+                              "type" : "Long",
+                              "display" : "Link Credit",
+                              "description" : "Current Link Credit",
+                              "defaultValue" : "-1"
+                            },
+                            "delivery-count-snd" : {
+                              "type" : "Long",
+                              "display" : "Delivery Count Send",
+                              "description" : "Current Delivery Count Send",
+                              "defaultValue" : "0"
+                            },
+                            "delivery-count-rcv" : {
+                              "type" : "Long",
+                              "display" : "Delivery Count Received",
+                              "description" : "Current Delivery Count Received",
+                              "defaultValue" : "0"
+                            },
+                            "messages-sent" : {
+                              "type" : "Long",
+                              "display" : "Number Messages Sent",
+                              "description" : "Number Messages Sent",
+                              "defaultValue" : "0"
+                            },
+                            "unsettled-transfers" : {
+                              "type" : "Integer",
+                              "display" : "Number unsettled Transfers",
+                              "description" : "Number unsettled Transfers",
+                              "defaultValue" : "0"
+                            },
+                            "nolocal" : {
+                              "type" : "Boolean",
+                              "display" : "No Local",
+                              "description" : "Does not send local Messages",
+                              "defaultValue" : "false"
+                            },
+                            "selector" : {
+                              "type" : "String",
+                              "display" : "Selector",
+                              "description" : "Message Selector"
+                            },
+                            "drain" : {
+                              "type" : "Boolean",
+                              "display" : "Drain",
+                              "description" : "Drain Flag",
+                              "defaultValue" : "false"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "dynamicProperties" : [ "msgs-received", "msgs-sent" ]
+          }
+        }
+      },
+      "sys$deploy" : {
+        "kind" : "ENTITY",
+        "display" : "Deploy Swiftlet",
+        "description" : "Deploy Swiftlet",
+        "lists" : {
+          "deploy-spaces" : {
+            "kind" : "LIST",
+            "display" : "Deploy Spaces",
+            "description" : "Deploy Spaces",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Deploy Space",
+              "description" : "Deploy Space",
+              "properties" : {
+                "path" : {
+                  "type" : "String",
+                  "display" : "Path Name",
+                  "description" : "Path Name",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "check-interval" : {
+                  "type" : "Long",
+                  "display" : "Check Interval",
+                  "description" : "Check Interval for Deployment Changes",
+                  "defaultValue" : "60000",
+                  "mandatory" : true
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Active Deployments",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Deploy Space",
+              "description" : "Deploy Space",
+              "lists" : {
+                "deployments" : {
+                  "kind" : "LIST",
+                  "display" : "Deployments",
+                  "description" : "Active Deployments",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Deployment",
+                    "description" : "Active Deployments",
+                    "properties" : {
+                      "deploytime" : {
+                        "type" : "String",
+                        "display" : "Deploy Time",
+                        "description" : "Deploy Time"
+                      },
+                      "directory" : {
+                        "type" : "String",
+                        "display" : "Directory",
+                        "description" : "Actual Deployment Directory"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$jms" : {
+        "kind" : "ENTITY",
+        "display" : "JMS Swiftlet",
+        "description" : "JMS Swiftlet",
+        "properties" : {
+          "allow-same-clientid" : {
+            "type" : "Boolean",
+            "display" : "Allow same Client Id",
+            "description" : "Allows multiple connection with the same JMS Client Id if set to true",
+            "defaultValue" : "false"
+          },
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Collect Interval Messages/Sec",
+            "defaultValue" : "10000"
+          },
+          "max-connections" : {
+            "type" : "Integer",
+            "display" : "Max. Connections",
+            "description" : "Maximum JMS Connections",
+            "defaultValue" : "-1"
+          },
+          "consumer-cache-low-water-mark" : {
+            "type" : "Integer",
+            "display" : "Consumer Cache Low Water Mark (Messages)",
+            "description" : "Consumer caches are refilled when reaching this mark",
+            "defaultValue" : "100",
+            "min" : "0"
+          },
+          "crfactory-class" : {
+            "type" : "String",
+            "display" : "C/R Factory Class",
+            "description" : "Challenge/Response Factory Class",
+            "defaultValue" : "com.swiftmq.auth.ChallengeResponseFactoryImpl",
+            "rebootRequired" : true
+          }
+        },
+        "lists" : {
+          "intravm-connection-factories" : {
+            "kind" : "LIST",
+            "display" : "IntraVM Connection Factories",
+            "description" : "IntraVM Connection Factories",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "IntraVM Connection Factory",
+              "description" : "IntraVM Connection Factory",
+              "properties" : {
+                "smqp-producer-reply-interval" : {
+                  "type" : "Integer",
+                  "display" : "SMQP Producer Reply Interval",
+                  "description" : "Number of SMQP Requests after which a SMQP Reply is required",
+                  "defaultValue" : "20",
+                  "min" : "1",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "smqp-consumer-cache-size" : {
+                  "type" : "Integer",
+                  "display" : "SMQP Consumer Cache Size",
+                  "description" : "Cache Size per Consumer (Messages)",
+                  "defaultValue" : "500",
+                  "min" : "1",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "smqp-consumer-cache-size-kb" : {
+                  "type" : "Integer",
+                  "display" : "SMQP Consumer Cache Size (KB)",
+                  "description" : "Cache Size per Consumer (KB)",
+                  "defaultValue" : "2048",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "jms-client-id" : {
+                  "type" : "String",
+                  "display" : "JMS Client Id",
+                  "description" : "JMS Client Id for durable Subscribers",
+                  "readOnly" : true
+                },
+                "jms-default-delivery-mode" : {
+                  "type" : "String",
+                  "display" : "JMS Default Delivery Mode",
+                  "description" : "JMS Default Delivery Mode",
+                  "defaultValue" : "persistent",
+                  "choices" : [ "persistent", "non_persistent" ],
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "jms-default-message-ttl" : {
+                  "type" : "Long",
+                  "display" : "JMS Default Message TTL",
+                  "description" : "JMS Default Message TTL",
+                  "defaultValue" : "0",
+                  "min" : "0",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "jms-default-message-priority" : {
+                  "type" : "Integer",
+                  "display" : "JMS Default Message Priority",
+                  "description" : "JMS Default Message Priority",
+                  "defaultValue" : "4",
+                  "min" : "0",
+                  "max" : "9",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "jms-default-message-id-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "JMS Default Message Id Enabled",
+                  "description" : "JMS Default Message Id Enabled",
+                  "defaultValue" : "true",
+                  "readOnly" : true
+                },
+                "jms-default-message-timestamp-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "JMS Default Message Timestamp Enabled",
+                  "description" : "JMS Default Message Timestamp Enabled",
+                  "defaultValue" : "true",
+                  "readOnly" : true
+                },
+                "thread-context-classloader-for-getobject" : {
+                  "type" : "Boolean",
+                  "display" : "Thread Context Classloader for getObject()",
+                  "description" : "Use the Thread Context Classloader for getObject()",
+                  "defaultValue" : "false",
+                  "readOnly" : true
+                }
+              }
+            }
+          },
+          "listeners" : {
+            "kind" : "LIST",
+            "display" : "Listeners",
+            "description" : "Listener Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Listener",
+              "description" : "Listener Definition",
+              "properties" : {
+                "connectaddress" : {
+                  "type" : "String",
+                  "display" : "Connect IP Address (NAT)",
+                  "description" : "Listener Connect IP Address for NAT",
+                  "readOnly" : true
+                },
+                "connectport" : {
+                  "type" : "Integer",
+                  "display" : "Connect Port (NAT)",
+                  "description" : "Listener Connect Port for NAT",
+                  "defaultValue" : "-1",
+                  "readOnly" : true
+                },
+                "bindaddress" : {
+                  "type" : "String",
+                  "display" : "Bind IP Address",
+                  "description" : "Listener Bind IP Address",
+                  "readOnly" : true
+                },
+                "port" : {
+                  "type" : "Integer",
+                  "display" : "Port",
+                  "description" : "Listener Port",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "hostname2" : {
+                  "type" : "String",
+                  "display" : "Hostname 2nd HA Instance",
+                  "description" : "Hostname of the 2nd HA Instance",
+                  "readOnly" : true
+                },
+                "connectaddress2" : {
+                  "type" : "String",
+                  "display" : "Connect IP Address (NAT) 2nd HA Instance",
+                  "description" : "Listener Connect IP Address for NAT of the 2nd HA Instance",
+                  "readOnly" : true
+                },
+                "connectport2" : {
+                  "type" : "Integer",
+                  "display" : "Connect Port (NAT) 2nd HA Instance",
+                  "description" : "Listener Connect Port for NAT of the 2nd HA Instance",
+                  "defaultValue" : "-1",
+                  "readOnly" : true
+                },
+                "bindaddress2" : {
+                  "type" : "String",
+                  "display" : "Bind IP Address 2nd HA Instance",
+                  "description" : "Listener Bind IP Address of the 2nd HA Instance",
+                  "readOnly" : true
+                },
+                "port2" : {
+                  "type" : "Integer",
+                  "display" : "Port 2nd HA Instance",
+                  "description" : "Listener Port 2nd HA Instance of the 2nd HA Instance",
+                  "defaultValue" : "-1",
+                  "readOnly" : true
+                },
+                "use-tcp-no-delay" : {
+                  "type" : "Boolean",
+                  "display" : "Use TCP No Delay",
+                  "description" : "Use Tcp No Delay",
+                  "defaultValue" : "true",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "socketfactory-class" : {
+                  "type" : "String",
+                  "display" : "Socketfactory Class",
+                  "description" : "Listener Socketfactory Class",
+                  "defaultValue" : "com.swiftmq.net.PlainSocketFactory",
+                  "readOnly" : true
+                },
+                "keepalive-interval" : {
+                  "type" : "Long",
+                  "display" : "Keep Alive Interval",
+                  "description" : "Interval for sending Keep Alive Messages",
+                  "defaultValue" : "60000",
+                  "readOnly" : true
+                },
+                "max-connections" : {
+                  "type" : "Integer",
+                  "display" : "Max. Connections",
+                  "description" : "Maximum JMS Connections for this Listener",
+                  "defaultValue" : "-1"
+                },
+                "router-input-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Buffer Size",
+                  "description" : "Router Network Input Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "router-input-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Extend Size",
+                  "description" : "Router Network Input Extend Size",
+                  "defaultValue" : "65536",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "router-output-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Buffer Size",
+                  "description" : "Router Network Output Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "router-output-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Extend Size",
+                  "description" : "Router Network Output Extend Size",
+                  "defaultValue" : "65536",
+                  "min" : "1024",
+                  "readOnly" : true
+                }
+              },
+              "lists" : {
+                "host-access-list" : {
+                  "kind" : "LIST",
+                  "display" : "Host Access List",
+                  "description" : "Host Access List",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Host Access Entry",
+                    "description" : "Host Access Entry"
+                  }
+                },
+                "connection-factories" : {
+                  "kind" : "LIST",
+                  "display" : "Connection Factories",
+                  "description" : "Connection Factories",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Connection Factory",
+                    "description" : "Connection Factory",
+                    "properties" : {
+                      "reconnect-enabled" : {
+                        "type" : "Boolean",
+                        "display" : "Reconnect Enabled",
+                        "description" : "Reconnect Enabled",
+                        "defaultValue" : "true",
+                        "readOnly" : true
+                      },
+                      "reconnect-max-retries" : {
+                        "type" : "Integer",
+                        "display" : "Reconnect Max. Retries",
+                        "description" : "Maximum Retries for Reconnect",
+                        "defaultValue" : "10",
+                        "readOnly" : true
+                      },
+                      "reconnect-delay" : {
+                        "type" : "Long",
+                        "display" : "Reconnect Delay (ms)",
+                        "description" : "Reconnect Delay in ms",
+                        "defaultValue" : "10000",
+                        "readOnly" : true
+                      },
+                      "duplicate-message-detection" : {
+                        "type" : "Boolean",
+                        "display" : "Duplicate Message Detection",
+                        "description" : "Enables Duplicate Message Detection for Consumers",
+                        "defaultValue" : "true",
+                        "readOnly" : true
+                      },
+                      "duplicate-backlog-size" : {
+                        "type" : "Integer",
+                        "display" : "Duplicate Backlog Size",
+                        "description" : "Max. Number of Entries of JMS Message IDs in the Duplicate Backlog",
+                        "defaultValue" : "2000",
+                        "readOnly" : true
+                      },
+                      "client-input-buffer-size" : {
+                        "type" : "Integer",
+                        "display" : "Client Network Input Buffer Size",
+                        "description" : "Client Network Input Buffer Size",
+                        "defaultValue" : "131072",
+                        "min" : "1024",
+                        "readOnly" : true
+                      },
+                      "client-input-extend-size" : {
+                        "type" : "Integer",
+                        "display" : "Client Network Input Extend Size",
+                        "description" : "Client Network Input Extend Size",
+                        "defaultValue" : "65536",
+                        "min" : "1024",
+                        "readOnly" : true
+                      },
+                      "client-output-buffer-size" : {
+                        "type" : "Integer",
+                        "display" : "Client Network Output Buffer Size",
+                        "description" : "Client Network Output Buffer Size",
+                        "defaultValue" : "131072",
+                        "min" : "1024",
+                        "readOnly" : true
+                      },
+                      "client-output-extend-size" : {
+                        "type" : "Integer",
+                        "display" : "Client Network Output Extend Size",
+                        "description" : "Client Network Output Extend Size",
+                        "defaultValue" : "131072",
+                        "min" : "1024",
+                        "readOnly" : true
+                      },
+                      "smqp-producer-reply-interval" : {
+                        "type" : "Integer",
+                        "display" : "SMQP Producer Reply Interval",
+                        "description" : "Number of SMQP Requests after which a SMQP Reply is required",
+                        "defaultValue" : "20",
+                        "min" : "1",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "smqp-consumer-cache-size" : {
+                        "type" : "Integer",
+                        "display" : "SMQP Consumer Cache Size",
+                        "description" : "Cache Size per Consumer (Messages)",
+                        "defaultValue" : "500",
+                        "min" : "1",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "smqp-consumer-cache-size-kb" : {
+                        "type" : "Integer",
+                        "display" : "SMQP Consumer Cache Size (KB)",
+                        "description" : "Cache Size per Consumer (KB)",
+                        "defaultValue" : "2048",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "jms-client-id" : {
+                        "type" : "String",
+                        "display" : "JMS Client Id",
+                        "description" : "JMS Client Id for durable Subscribers",
+                        "readOnly" : true
+                      },
+                      "jms-default-delivery-mode" : {
+                        "type" : "String",
+                        "display" : "JMS Default Delivery Mode",
+                        "description" : "JMS Default Delivery Mode",
+                        "defaultValue" : "persistent",
+                        "choices" : [ "persistent", "non_persistent" ],
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "jms-default-message-ttl" : {
+                        "type" : "Long",
+                        "display" : "JMS Default Message TTL",
+                        "description" : "JMS Default Message TTL",
+                        "defaultValue" : "0",
+                        "min" : "0",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "jms-default-message-priority" : {
+                        "type" : "Integer",
+                        "display" : "JMS Default Message Priority",
+                        "description" : "JMS Default Message Priority",
+                        "defaultValue" : "4",
+                        "min" : "0",
+                        "max" : "9",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "jms-default-message-id-enabled" : {
+                        "type" : "Boolean",
+                        "display" : "JMS Default Message Id Enabled",
+                        "description" : "JMS Default Message Id Enabled",
+                        "defaultValue" : "true",
+                        "readOnly" : true
+                      },
+                      "jms-default-message-timestamp-enabled" : {
+                        "type" : "Boolean",
+                        "display" : "JMS Default Message Timestamp Enabled",
+                        "description" : "JMS Default Message Timestamp Enabled",
+                        "defaultValue" : "true",
+                        "readOnly" : true
+                      },
+                      "thread-context-classloader-for-getobject" : {
+                        "type" : "Boolean",
+                        "display" : "Thread Context Classloader for getObject()",
+                        "description" : "Use the Thread Context Classloader for getObject()",
+                        "defaultValue" : "false",
+                        "readOnly" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Active JMS Connections",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Active JMS Connection",
+              "description" : "Active JMS Connection",
+              "properties" : {
+                "version" : {
+                  "type" : "Integer",
+                  "display" : "Version",
+                  "description" : "Version"
+                },
+                "clientid" : {
+                  "type" : "String",
+                  "display" : "Client Id",
+                  "description" : "Client Id"
+                },
+                "username" : {
+                  "type" : "String",
+                  "display" : "User Name",
+                  "description" : "User Name"
+                },
+                "logintime" : {
+                  "type" : "String",
+                  "display" : "Login Time",
+                  "description" : "Login Time"
+                },
+                "msgs-received" : {
+                  "type" : "Integer",
+                  "display" : "Received Msgs/s ",
+                  "description" : "Messages/Sec received from Client",
+                  "defaultValue" : "0"
+                },
+                "msgs-sent" : {
+                  "type" : "Integer",
+                  "display" : "Sent Msgs/s",
+                  "description" : "Messages/Sec sent from Client",
+                  "defaultValue" : "0"
+                },
+                "total-received" : {
+                  "type" : "Integer",
+                  "display" : "Total Received Msgs",
+                  "description" : "Total Number of Messages received from Connection",
+                  "defaultValue" : "0"
+                },
+                "total-sent" : {
+                  "type" : "Integer",
+                  "display" : "Total Sent Msgs",
+                  "description" : "Total Number of Messages sent from Connection",
+                  "defaultValue" : "0"
+                }
+              },
+              "lists" : {
+                "tempqueues" : {
+                  "kind" : "LIST",
+                  "display" : "Temporary Queues",
+                  "description" : "Temporary Queues created by this Connection",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Temporary Queue",
+                    "description" : "Temporary Queue"
+                  }
+                },
+                "sessions" : {
+                  "kind" : "LIST",
+                  "display" : "JMS Sessions",
+                  "description" : "JMS Sessions created by this Connection",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "JMS Session",
+                    "description" : "JMS Session",
+                    "properties" : {
+                      "transacted" : {
+                        "type" : "Boolean",
+                        "display" : "Transacted",
+                        "description" : "Transacted JMS Session",
+                        "defaultValue" : "false"
+                      },
+                      "acknowledgemode" : {
+                        "type" : "String",
+                        "display" : "Acknowledge Mode",
+                        "description" : "Acknowledge Mode",
+                        "choices" : [ "AUTO_ACKNOWLEDGE", "CLIENT_ACKNOWLEDGE", "DUPS_OK_ACKNOWLEDGE" ]
+                      }
+                    },
+                    "lists" : {
+                      "receiver" : {
+                        "kind" : "LIST",
+                        "display" : "Queue Receivers",
+                        "description" : "Queue Receivers created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Queue Receiver",
+                          "description" : "Queue Receiver",
+                          "properties" : {
+                            "queue" : {
+                              "type" : "String",
+                              "display" : "Queue Name",
+                              "description" : "Queue Name"
+                            },
+                            "selector" : {
+                              "type" : "String",
+                              "display" : "Message Selector",
+                              "description" : "Message Selector"
+                            }
+                          }
+                        }
+                      },
+                      "browser" : {
+                        "kind" : "LIST",
+                        "display" : "Queue Browsers",
+                        "description" : "Queue Browsers created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Queue Browser",
+                          "description" : "Queue Browser",
+                          "properties" : {
+                            "queue" : {
+                              "type" : "String",
+                              "display" : "Queue Name",
+                              "description" : "Queue Name"
+                            },
+                            "selector" : {
+                              "type" : "String",
+                              "display" : "Message Selector",
+                              "description" : "Message Selector"
+                            }
+                          }
+                        }
+                      },
+                      "sender" : {
+                        "kind" : "LIST",
+                        "display" : "Queue Senders",
+                        "description" : "Queue Senders created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Queue Sender",
+                          "description" : "Queue Sender",
+                          "properties" : {
+                            "queue" : {
+                              "type" : "String",
+                              "display" : "Queue Name",
+                              "description" : "Queue Name"
+                            }
+                          }
+                        }
+                      },
+                      "publisher" : {
+                        "kind" : "LIST",
+                        "display" : "Topic Publishers",
+                        "description" : "Topic Publishers created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Topic Publisher",
+                          "description" : "Topic Publisher",
+                          "properties" : {
+                            "topic" : {
+                              "type" : "String",
+                              "display" : "Topic Name",
+                              "description" : "Topic Name"
+                            }
+                          }
+                        }
+                      },
+                      "durables" : {
+                        "kind" : "LIST",
+                        "display" : "Durable Topic Subscriber",
+                        "description" : "Durable Topic Subscriber created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Durable Topic Subscriber",
+                          "description" : "Durable Topic Subscriber",
+                          "properties" : {
+                            "durablename" : {
+                              "type" : "String",
+                              "display" : "Durable Name",
+                              "description" : "Name of the durable Subscriber"
+                            },
+                            "clientid" : {
+                              "type" : "String",
+                              "display" : "Client Id",
+                              "description" : "Client Id"
+                            },
+                            "topic" : {
+                              "type" : "String",
+                              "display" : "Topic Name",
+                              "description" : "Topic Name"
+                            },
+                            "selector" : {
+                              "type" : "String",
+                              "display" : "Message Selector",
+                              "description" : "Message Selector"
+                            },
+                            "nolocal" : {
+                              "type" : "Boolean",
+                              "display" : "No Local",
+                              "description" : "Receives no local published Messages",
+                              "defaultValue" : "false"
+                            },
+                            "boundto" : {
+                              "type" : "String",
+                              "display" : "Bound To",
+                              "description" : "Is bound to Queue"
+                            }
+                          }
+                        }
+                      },
+                      "subscriber" : {
+                        "kind" : "LIST",
+                        "display" : "Topic Subscriber",
+                        "description" : "Topic Subscriber created by this Session",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Topic Subscriber",
+                          "description" : "Topic Subscriber",
+                          "properties" : {
+                            "clientid" : {
+                              "type" : "String",
+                              "display" : "Client Id",
+                              "description" : "Client Id"
+                            },
+                            "topic" : {
+                              "type" : "String",
+                              "display" : "Topic Name",
+                              "description" : "Topic Name"
+                            },
+                            "selector" : {
+                              "type" : "String",
+                              "display" : "Message Selector",
+                              "description" : "Message Selector"
+                            },
+                            "nolocal" : {
+                              "type" : "Boolean",
+                              "display" : "No Local",
+                              "description" : "Receives no local published Messages",
+                              "defaultValue" : "false"
+                            },
+                            "temptopic" : {
+                              "type" : "Boolean",
+                              "display" : "Temporary Topic",
+                              "description" : "Is Temporary Topic",
+                              "defaultValue" : "false"
+                            },
+                            "boundto" : {
+                              "type" : "String",
+                              "display" : "Bound To",
+                              "description" : "Is bound to Queue"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "dynamicProperties" : [ "msgs-received", "msgs-sent" ]
+          }
+        }
+      },
+      "sys$jndi" : {
+        "kind" : "ENTITY",
+        "display" : "JNDI Swiftlet",
+        "description" : "JNDI Swiftlet",
+        "lists" : {
+          "jndi-replications" : {
+            "kind" : "LIST",
+            "display" : "JNDI Replication",
+            "description" : "JNDI Replication Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "JNDI Replication",
+              "description" : "JNDI Replication Definition",
+              "properties" : {
+                "enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Enabled",
+                  "description" : "Enabled/Disabled",
+                  "defaultValue" : "false"
+                },
+                "keepalive-interval" : {
+                  "type" : "Long",
+                  "display" : "Keepalive Interval",
+                  "description" : "Keepalive Interval",
+                  "defaultValue" : "60000",
+                  "mandatory" : true
+                },
+                "keepalive-lookup-name" : {
+                  "type" : "String",
+                  "display" : "Keepalive Lookup Name",
+                  "description" : "Name to use for Lookup during Keep Alive",
+                  "defaultValue" : "test",
+                  "mandatory" : true
+                },
+                "destination-context" : {
+                  "type" : "String",
+                  "display" : "Destination Context",
+                  "description" : "Destination Context"
+                },
+                "name-prefix" : {
+                  "type" : "String",
+                  "display" : "Name Prefix",
+                  "description" : "For LDAP you specify cn= here"
+                }
+              },
+              "lists" : {
+                "environment-properties" : {
+                  "kind" : "LIST",
+                  "display" : "Environment Properties",
+                  "description" : "Environment Properties",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Environment Property",
+                    "description" : "Environment Property",
+                    "properties" : {
+                      "value" : {
+                        "type" : "String",
+                        "display" : "Property Value",
+                        "description" : "Property Value",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "aliases" : {
+            "kind" : "LIST",
+            "display" : "Aliases",
+            "description" : "Alias Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Alias",
+              "description" : "Alias Definition",
+              "properties" : {
+                "map-to" : {
+                  "type" : "String",
+                  "display" : "Map To",
+                  "description" : "Mapping to generic Name"
+                }
+              }
+            }
+          },
+          "remote-queues" : {
+            "kind" : "LIST",
+            "display" : "Remote Queues",
+            "description" : "Remote Queue Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Remote Queue",
+              "description" : "Remote Queue Definition"
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Registered JNDI Objects",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Registered JNDI Object",
+              "description" : "Registered JNDI Object",
+              "properties" : {
+                "classname" : {
+                  "type" : "String",
+                  "display" : "Class Name",
+                  "description" : "Class Name of the registered JNDI Object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$log" : {
+        "kind" : "ENTITY",
+        "display" : "Log Swiftlet",
+        "description" : "Central Logging Facility",
+        "properties" : {
+          "size-limit" : {
+            "type" : "Integer",
+            "display" : "Logfile Size Limit (KB)",
+            "description" : "Logfiles do rotate by reaching this size",
+            "defaultValue" : "1024",
+            "min" : "1"
+          },
+          "number-old-logfile-generations" : {
+            "type" : "Integer",
+            "display" : "Number old Logfile Generations",
+            "description" : "Number old Logfile Generations to keep",
+            "defaultValue" : "50"
+          },
+          "logfile-info-enabled" : {
+            "type" : "Boolean",
+            "display" : "Info Logfile enabled",
+            "description" : "Info Logfile enabled",
+            "defaultValue" : "true"
+          },
+          "logfile-info" : {
+            "type" : "String",
+            "display" : "Logfile Information Messages",
+            "description" : "Logfile Information Messages",
+            "defaultValue" : "swiftmq_info.log"
+          },
+          "logfile-warning-enabled" : {
+            "type" : "Boolean",
+            "display" : "Warning Logfile enabled",
+            "description" : "Warning Logfile enabled",
+            "defaultValue" : "true"
+          },
+          "logfile-warning" : {
+            "type" : "String",
+            "display" : "Logfile Warning Messages",
+            "description" : "Logfile Warning Messages",
+            "defaultValue" : "swiftmq_warning.log"
+          },
+          "logfile-error-enabled" : {
+            "type" : "Boolean",
+            "display" : "Error Logfile enabled",
+            "description" : "Error Logfile enabled",
+            "defaultValue" : "true"
+          },
+          "logfile-error" : {
+            "type" : "String",
+            "display" : "Logfile Error Messages",
+            "description" : "Logfile Error Messages",
+            "defaultValue" : "swiftmq_error.log"
+          },
+          "logsink-directory" : {
+            "type" : "String",
+            "display" : "Logsink Directory",
+            "description" : "Directory where Logsinks will be stored",
+            "defaultValue" : "./"
+          }
+        }
+      },
+      "sys$mqtt" : {
+        "kind" : "ENTITY",
+        "display" : "MQTT Swiftlet",
+        "description" : "MQTT Swiftlet",
+        "properties" : {
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Collect Interval Messages/Sec",
+            "defaultValue" : "1000"
+          },
+          "session-timeout" : {
+            "type" : "Long",
+            "display" : "Session Timeout (hours)",
+            "description" : "Time in hours after which a unused Session is deleted",
+            "defaultValue" : "168"
+          }
+        },
+        "entities" : {
+          "declarations" : {
+            "kind" : "ENTITY",
+            "display" : "Declarations",
+            "description" : "Declarations Section",
+            "lists" : {
+              "connection-templates" : {
+                "kind" : "LIST",
+                "display" : "Connection Templates",
+                "description" : "Templates for Connections",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Connection Template",
+                  "description" : "Connection Template",
+                  "properties" : {
+                    "socketfactory-class" : {
+                      "type" : "String",
+                      "display" : "Socketfactory Class",
+                      "description" : "Socketfactory Class",
+                      "defaultValue" : "com.swiftmq.net.PlainSocketFactory"
+                    },
+                    "use-tcp-no-delay" : {
+                      "type" : "Boolean",
+                      "display" : "Use TCP No Delay",
+                      "description" : "Use Tcp No Delay",
+                      "defaultValue" : "true"
+                    },
+                    "idle-timeout" : {
+                      "type" : "Long",
+                      "display" : "Idle Timeout",
+                      "description" : "Inactivity timeout (ms) after which a Connection is disconnected",
+                      "defaultValue" : "90000"
+                    },
+                    "max-message-size" : {
+                      "type" : "Integer",
+                      "display" : "Maximum Message Size",
+                      "description" : "Maximum Message Size",
+                      "defaultValue" : "10485760",
+                      "min" : "0",
+                      "max" : "2147483647"
+                    },
+                    "reject-disconnect-delay" : {
+                      "type" : "Long",
+                      "display" : "Reject Disconnect Delay",
+                      "description" : "Time (ms) after which a rejected Connection is closed",
+                      "defaultValue" : "5000",
+                      "min" : "1000"
+                    },
+                    "router-input-buffer-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Input Buffer Size",
+                      "description" : "Router Network Input Buffer Size",
+                      "defaultValue" : "131072",
+                      "min" : "1024"
+                    },
+                    "router-input-extend-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Input Extend Size",
+                      "description" : "Router Network Input Extend Size",
+                      "defaultValue" : "65536",
+                      "min" : "1024"
+                    },
+                    "router-output-buffer-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Output Buffer Size",
+                      "description" : "Router Network Output Buffer Size",
+                      "defaultValue" : "131072",
+                      "min" : "1024"
+                    },
+                    "router-output-extend-size" : {
+                      "type" : "Integer",
+                      "display" : "Router Network Output Extend Size",
+                      "description" : "Router Network Output Extend Size",
+                      "defaultValue" : "65536",
+                      "min" : "1024"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Live Usage",
+            "lists" : {
+              "connections" : {
+                "kind" : "LIST",
+                "display" : "MQTT Connections",
+                "description" : "Active MQTT Connections",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Active MQTT Connection",
+                  "description" : "Active MQTT Connection",
+                  "properties" : {
+                    "client-id" : {
+                      "type" : "String",
+                      "display" : "Client Id",
+                      "description" : "Client Id"
+                    },
+                    "connect-time" : {
+                      "type" : "String",
+                      "display" : "Connect Time",
+                      "description" : "Connect Time"
+                    },
+                    "msgs-received" : {
+                      "type" : "Integer",
+                      "display" : "Received Msgs/s ",
+                      "description" : "Messages/Sec received from Connection",
+                      "defaultValue" : "0"
+                    },
+                    "msgs-sent" : {
+                      "type" : "Integer",
+                      "display" : "Sent Msgs/s",
+                      "description" : "Messages/Sec sent to Connection",
+                      "defaultValue" : "0"
+                    },
+                    "total-received" : {
+                      "type" : "Integer",
+                      "display" : "Total Received Msgs",
+                      "description" : "Total Number of Messages received from Connection",
+                      "defaultValue" : "0"
+                    },
+                    "total-sent" : {
+                      "type" : "Integer",
+                      "display" : "Total Sent Msgs",
+                      "description" : "Total Number of Messages sent to Connection",
+                      "defaultValue" : "0"
+                    },
+                    "username" : {
+                      "type" : "String",
+                      "display" : "User Name",
+                      "description" : "User Name"
+                    },
+                    "mqtt-protlevel" : {
+                      "type" : "Integer",
+                      "display" : "MQTT Protocol Level",
+                      "description" : "MQTT Protocol Level [4 = 3.1.1]"
+                    }
+                  },
+                  "entities" : {
+                    "MQTT Session" : {
+                      "kind" : "ENTITY",
+                      "display" : "MQTT Session",
+                      "description" : "MQTT Session",
+                      "properties" : {
+                        "persistent" : {
+                          "type" : "Boolean",
+                          "display" : "Persistent",
+                          "description" : "Persistent Session",
+                          "defaultValue" : "false"
+                        }
+                      },
+                      "lists" : {
+                        "subscriptions" : {
+                          "kind" : "LIST",
+                          "display" : "Topic Subscriptions",
+                          "description" : "Topic Subscriptions",
+                          "template" : {
+                            "kind" : "ENTITY",
+                            "display" : "Topic Subscription",
+                            "description" : "Topic Subscription",
+                            "properties" : {
+                              "swiftmq-topic" : {
+                                "type" : "String",
+                                "display" : "SwiftMQ Topic",
+                                "description" : "Translated SwiftMQ Topic Name"
+                              },
+                              "qos" : {
+                                "type" : "Integer",
+                                "display" : "QoS",
+                                "description" : "Quality of Service",
+                                "defaultValue" : "0",
+                                "min" : "0",
+                                "max" : "2"
+                              },
+                              "msgs-received" : {
+                                "type" : "Integer",
+                                "display" : "Received Msgs/s ",
+                                "description" : "Messages/Sec received from Subscription",
+                                "defaultValue" : "0"
+                              },
+                              "total-received" : {
+                                "type" : "Integer",
+                                "display" : "Total Received Msgs",
+                                "description" : "Total Number of Messages received from Subscription",
+                                "defaultValue" : "0"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "dynamicProperties" : [ "msgs-received", "msgs-sent" ]
+              },
+              "sessions" : {
+                "kind" : "LIST",
+                "display" : "Persistent Sessions",
+                "description" : "Persistent MQTT Sessions",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "MQTT Session",
+                  "description" : "MQTT Session",
+                  "properties" : {
+                    "associated" : {
+                      "type" : "Boolean",
+                      "display" : "Associated",
+                      "description" : "Associated with a Connection",
+                      "defaultValue" : "false"
+                    },
+                    "persistent" : {
+                      "type" : "Boolean",
+                      "display" : "Persistent",
+                      "description" : "Persistent Session",
+                      "defaultValue" : "false"
+                    }
+                  },
+                  "lists" : {
+                    "subscriptions" : {
+                      "kind" : "LIST",
+                      "display" : "Topic Subscriptions",
+                      "description" : "Topic Subscriptions",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "Topic Subscription",
+                        "description" : "Topic Subscription",
+                        "properties" : {
+                          "swiftmq-topic" : {
+                            "type" : "String",
+                            "display" : "SwiftMQ Topic",
+                            "description" : "Translated SwiftMQ Topic Name"
+                          },
+                          "qos" : {
+                            "type" : "Integer",
+                            "display" : "QoS",
+                            "description" : "Quality of Service",
+                            "defaultValue" : "0",
+                            "min" : "0",
+                            "max" : "2"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lists" : {
+          "listeners" : {
+            "kind" : "LIST",
+            "display" : "Listeners",
+            "description" : "Listener Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Listener",
+              "description" : "Listener Definition",
+              "properties" : {
+                "bindaddress" : {
+                  "type" : "String",
+                  "display" : "Bind IP Address",
+                  "description" : "Listener Bind IP Address",
+                  "readOnly" : true
+                },
+                "port" : {
+                  "type" : "Integer",
+                  "display" : "Port",
+                  "description" : "Listener Port",
+                  "defaultValue" : "1883",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "max-connections" : {
+                  "type" : "Integer",
+                  "display" : "Maximum Connections",
+                  "description" : "Maximum Connections for Listener",
+                  "defaultValue" : "-1",
+                  "mandatory" : true
+                },
+                "connection-template" : {
+                  "type" : "String",
+                  "display" : "Connection Template",
+                  "description" : "Connection Template to use",
+                  "defaultValue" : "default",
+                  "mandatory" : true
+                }
+              },
+              "lists" : {
+                "host-access-list" : {
+                  "kind" : "LIST",
+                  "display" : "Host Access List",
+                  "description" : "Host Access List",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Host Access Entry",
+                    "description" : "Host Access Entry"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$net" : {
+        "kind" : "ENTITY",
+        "display" : "Network Swiftlet",
+        "description" : "Network Swiftlet",
+        "properties" : {
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Throughput Collect Interval",
+            "defaultValue" : "1000"
+          },
+          "zombi-connection-timeout" : {
+            "type" : "Long",
+            "display" : "Zombi-Connection Timeout",
+            "description" : "Zombi-Connection Timeout",
+            "defaultValue" : "0"
+          },
+          "dns-resolve-enabled" : {
+            "type" : "Boolean",
+            "display" : "DNS Resolve Enabled",
+            "description" : "Resolve DNS Names during Connect",
+            "defaultValue" : "false"
+          },
+          "reuse-serversockets" : {
+            "type" : "Boolean",
+            "display" : "Re-Use Server Sockets",
+            "description" : "Re-Use Server Sockets",
+            "defaultValue" : "true"
+          },
+          "number-selector-tasks" : {
+            "type" : "Integer",
+            "display" : "Number Selector Tasks",
+            "description" : "Number Selector Tasks. Might be increased for Multi-Processor Machines.",
+            "defaultValue" : "10",
+            "min" : "4",
+            "rebootRequired" : true
+          },
+          "max-chunk-size" : {
+            "type" : "Long",
+            "display" : "Maximum Chunk Size (Bytes)",
+            "description" : "Maximum size of a network chunk (chunk = message in JMS) to limit the incoming message size router-wide.",
+            "defaultValue" : "-1"
+          }
+        },
+        "lists" : {
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Connections",
+            "description" : "Active Connections",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Connection",
+              "description" : "Active Connection",
+              "properties" : {
+                "swiftlet" : {
+                  "type" : "String",
+                  "display" : "Swiftlet",
+                  "description" : "Attached to Swiftlet"
+                },
+                "connect-time" : {
+                  "type" : "String",
+                  "display" : "Connect Time",
+                  "description" : "Connect Time"
+                },
+                "throughput-input" : {
+                  "type" : "String",
+                  "display" : "Input KB/s",
+                  "description" : "Input KB/s"
+                },
+                "throughput-output" : {
+                  "type" : "String",
+                  "display" : "Output KB/s",
+                  "description" : "Output KB/s"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$queuemanager" : {
+        "kind" : "ENTITY",
+        "display" : "Queue Manager Swiftlet",
+        "description" : "Queue Manager",
+        "properties" : {
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Interval for collecting the Number of Messages per Queue",
+            "defaultValue" : "1000"
+          },
+          "cluster-metric-interval" : {
+            "type" : "Long",
+            "display" : "Cluster Metric Interval",
+            "description" : "Interval for sending metrics about clustered queues",
+            "defaultValue" : "10000",
+            "min" : "1000"
+          },
+          "max-flowcontrol-delay" : {
+            "type" : "Long",
+            "display" : "Maximum Flow Control Delay",
+            "description" : "Maximum Flow Control Delay",
+            "defaultValue" : "5000",
+            "rebootRequired" : true
+          },
+          "log-expired-messages" : {
+            "type" : "Boolean",
+            "display" : "Log Expired Messages",
+            "description" : "Log Expired Messages to the 'Warning' Log File",
+            "defaultValue" : "false"
+          },
+          "log-duplicate-messages" : {
+            "type" : "Boolean",
+            "display" : "Log Duplicate Messages",
+            "description" : "Log Duplicate Messages to the 'Warning' Log File",
+            "defaultValue" : "false"
+          },
+          "deliver-expired-messages" : {
+            "type" : "Boolean",
+            "display" : "Deliver Expired Messages",
+            "description" : "Deliver Expired Messages to Clients",
+            "defaultValue" : "false"
+          },
+          "cluster-topic" : {
+            "type" : "String",
+            "display" : "Cluster Message Exchange Topic",
+            "description" : "Cluster Message Exchange Topic",
+            "defaultValue" : "swiftmq.cluster",
+            "rebootRequired" : true
+          },
+          "multi-queue-transaction-global-lock" : {
+            "type" : "Boolean",
+            "display" : "Multi Queue Transaction Global Lock",
+            "description" : "Use a global lock for multi Queue Transactions",
+            "defaultValue" : "false"
+          }
+        },
+        "lists" : {
+          "queue-controllers" : {
+            "kind" : "LIST",
+            "display" : "System Queue Controllers",
+            "description" : "Controllers for System Queues",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "System Queue Controller",
+              "description" : "System Queue Controller",
+              "properties" : {
+                "predicate" : {
+                  "type" : "String",
+                  "display" : "Predicate",
+                  "description" : "Queue Name SQL-Like Predicate",
+                  "mandatory" : true
+                },
+                "cache-size" : {
+                  "type" : "Integer",
+                  "display" : "Cache Size",
+                  "description" : "Message Queue Cache Size",
+                  "defaultValue" : "500"
+                },
+                "cache-size-bytes-kb" : {
+                  "type" : "Integer",
+                  "display" : "Cache Size Bytes (KB)",
+                  "description" : "Message Queue Cache Size Bytes (KB)",
+                  "defaultValue" : "-1"
+                },
+                "cleanup-interval" : {
+                  "type" : "Long",
+                  "display" : "Cleanup Interval",
+                  "description" : "Interval to check for expired Messages",
+                  "defaultValue" : "120000"
+                },
+                "flowcontrol-start-queuesize" : {
+                  "type" : "Integer",
+                  "display" : "Flow Control Start Queue Size",
+                  "description" : "Flow Control starts at this Queue Size",
+                  "defaultValue" : "400"
+                },
+                "max-messages" : {
+                  "type" : "Integer",
+                  "display" : "Maximum Messages",
+                  "description" : "Max. Messages for this Queue",
+                  "defaultValue" : "-1"
+                },
+                "persistence-mode" : {
+                  "type" : "String",
+                  "display" : "Queue Persistence",
+                  "description" : "Persistence Mode of this Queue",
+                  "defaultValue" : "as_message",
+                  "choices" : [ "as_message", "persistent", "non_persistent" ]
+                },
+                "consumer-mode" : {
+                  "type" : "String",
+                  "display" : "Consumer Mode",
+                  "description" : "Consumer Mode",
+                  "defaultValue" : "shared",
+                  "choices" : [ "shared", "exclusive", "activestandby" ]
+                },
+                "duplicate-detection-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Duplicate Detection Enabled",
+                  "description" : "Enables/Diables Duplicate Message Detection",
+                  "defaultValue" : "true"
+                },
+                "duplicate-detection-backlog-size" : {
+                  "type" : "Integer",
+                  "display" : "Duplicate Detection Backlog Size",
+                  "description" : "Size of the Backlog for Duplicate Message Detection",
+                  "defaultValue" : "2000"
+                },
+                "monitor-alert-threshold" : {
+                  "type" : "Integer",
+                  "display" : "Monitor Alert Threshold",
+                  "description" : "Threshold in Number of Messages after which the Monitor Swiftlet sends a Queue Monitor Alert",
+                  "defaultValue" : "-1"
+                }
+              }
+            }
+          },
+          "clustered-queues" : {
+            "kind" : "LIST",
+            "display" : "Clustered Queues",
+            "description" : "Clustered Queues",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Clustered Queue",
+              "description" : "Clustered Queue",
+              "properties" : {
+                "message-group-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Message Group Enabled",
+                  "description" : "Enables/Diables grouping of Messages",
+                  "defaultValue" : "false"
+                },
+                "message-group-property" : {
+                  "type" : "String",
+                  "display" : "Message Group Property",
+                  "description" : "Name of Property to group Messages",
+                  "defaultValue" : "JMSXGroupID"
+                },
+                "message-group-expiration" : {
+                  "type" : "Long",
+                  "display" : "Message Group Expiration (ms)",
+                  "description" : "Time (ms) after the last occurance after which a message group expires",
+                  "defaultValue" : "-1"
+                },
+                "message-group-expiration-cleanup-interval" : {
+                  "type" : "Long",
+                  "display" : "Message Group Expiration Cleanup Interval (ms)",
+                  "description" : "Interval (ms) in which message groups are checked for expiration",
+                  "defaultValue" : "-1"
+                }
+              },
+              "lists" : {
+                "queue-bindings" : {
+                  "kind" : "LIST",
+                  "display" : "Queue Bindings",
+                  "description" : "Queue Bindings",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Queue Binding",
+                    "description" : "Queue Binding",
+                    "properties" : {
+                      "redispatch-enabled" : {
+                        "type" : "Boolean",
+                        "display" : "Redispatch Enabled",
+                        "description" : "Enables/Diables Redispatch of Messages if no Consumer is attached",
+                        "defaultValue" : "true"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "composite-queues" : {
+            "kind" : "LIST",
+            "display" : "Composite Queues",
+            "description" : "Composite Queues",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Composite Queue",
+              "description" : "Composite Queue",
+              "lists" : {
+                "queue-bindings" : {
+                  "kind" : "LIST",
+                  "display" : "Queue Bindings",
+                  "description" : "Queue Bindings",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Queue Binding",
+                    "description" : "Queue Binding",
+                    "properties" : {
+                      "message-selector" : {
+                        "type" : "String",
+                        "display" : "Message Selector",
+                        "description" : "Optional Selector to filter messages for this Binding"
+                      },
+                      "generate-new-message-id" : {
+                        "type" : "Boolean",
+                        "display" : "Generate new Message Id",
+                        "description" : "Generates a new Message Id for this Binding's Message Copies",
+                        "defaultValue" : "false"
+                      },
+                      "change-destination" : {
+                        "type" : "Boolean",
+                        "display" : "Change Destination",
+                        "description" : "Changes the JMS Destination of Message Copies to the Bindung Queue",
+                        "defaultValue" : "false"
+                      },
+                      "default-delivery" : {
+                        "type" : "Boolean",
+                        "display" : "Default Delivery",
+                        "description" : "A defaut delivery gets the message if no other binding matches.",
+                        "defaultValue" : "false"
+                      }
+                    }
+                  }
+                },
+                "topic-bindings" : {
+                  "kind" : "LIST",
+                  "display" : "Topic Bindings",
+                  "description" : "Topic Bindings",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Topic Binding",
+                    "description" : "Topic Binding",
+                    "properties" : {
+                      "message-selector" : {
+                        "type" : "String",
+                        "display" : "Message Selector",
+                        "description" : "Optional Selector to filter messages for this Binding"
+                      },
+                      "generate-new-message-id" : {
+                        "type" : "Boolean",
+                        "display" : "Generate new Message Id",
+                        "description" : "Generates a new Message Id for this Binding's Message Copies",
+                        "defaultValue" : "false"
+                      },
+                      "default-delivery" : {
+                        "type" : "Boolean",
+                        "display" : "Default Delivery",
+                        "description" : "A defaut delivery gets the message if no other binding matches.",
+                        "defaultValue" : "false"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "queues" : {
+            "kind" : "LIST",
+            "display" : "Queues",
+            "description" : "Queue Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Queue",
+              "description" : "Queue Definition",
+              "properties" : {
+                "cache-size" : {
+                  "type" : "Integer",
+                  "display" : "Cache Size",
+                  "description" : "Message Queue Cache Size",
+                  "defaultValue" : "500"
+                },
+                "cache-size-bytes-kb" : {
+                  "type" : "Integer",
+                  "display" : "Cache Size Bytes (KB)",
+                  "description" : "Message Queue Cache Size Bytes (KB)",
+                  "defaultValue" : "-1"
+                },
+                "cleanup-interval" : {
+                  "type" : "Long",
+                  "display" : "Cleanup Interval",
+                  "description" : "Interval to check for expired Messages",
+                  "defaultValue" : "120000"
+                },
+                "max-messages" : {
+                  "type" : "Integer",
+                  "display" : "Maximum Messages",
+                  "description" : "Max. Messages for this Queue",
+                  "defaultValue" : "-1"
+                },
+                "persistence-mode" : {
+                  "type" : "String",
+                  "display" : "Queue Persistence",
+                  "description" : "Persistence Mode of this Queue",
+                  "defaultValue" : "as_message",
+                  "choices" : [ "as_message", "persistent", "non_persistent" ]
+                },
+                "consumer-mode" : {
+                  "type" : "String",
+                  "display" : "Consumer Mode",
+                  "description" : "Consumer Mode",
+                  "defaultValue" : "shared",
+                  "choices" : [ "shared", "exclusive", "activestandby" ]
+                },
+                "flowcontrol-start-queuesize" : {
+                  "type" : "Integer",
+                  "display" : "Flow Control Start Queue Size",
+                  "description" : "Flow Control starts at this Queue Size",
+                  "defaultValue" : "400"
+                },
+                "duplicate-detection-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Duplicate Detection Enabled",
+                  "description" : "Enables/Diables Duplicate Message Detection",
+                  "defaultValue" : "true"
+                },
+                "duplicate-detection-backlog-size" : {
+                  "type" : "Integer",
+                  "display" : "Duplicate Detection Backlog Size",
+                  "description" : "Size of the Backlog for Duplicate Message Detection",
+                  "defaultValue" : "2000"
+                },
+                "monitor-alert-threshold" : {
+                  "type" : "Integer",
+                  "display" : "Monitor Alert Threshold",
+                  "description" : "Threshold in Number of Messages after which the Monitor Swiftlet sends a Queue Monitor Alert",
+                  "defaultValue" : "-1"
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Active Queues",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Active Queue",
+              "description" : "Active Queue",
+              "properties" : {
+                "acache-size" : {
+                  "type" : "Integer",
+                  "display" : "Max. Cache Size Messages",
+                  "description" : "Max. Cache Size Messages",
+                  "defaultValue" : "0"
+                },
+                "acache-size-kb" : {
+                  "type" : "Integer",
+                  "display" : "Max. Cache Size (KB)",
+                  "description" : "Max. Cache Size (KB)",
+                  "defaultValue" : "0"
+                },
+                "acleanup-interval" : {
+                  "type" : "Long",
+                  "display" : "Cleanup Interval",
+                  "description" : "Interval for checking of msg expiration",
+                  "defaultValue" : "0"
+                },
+                "aflowcontrol-start-queuesize" : {
+                  "type" : "Integer",
+                  "display" : "FC Start",
+                  "description" : "Flow Control starts at this Queue Size",
+                  "defaultValue" : "0"
+                },
+                "amax-messages" : {
+                  "type" : "Integer",
+                  "display" : "Max. Messages",
+                  "description" : "Max. Messages for this Queue",
+                  "defaultValue" : "-1"
+                },
+                "flowcontrol-delay" : {
+                  "type" : "Long",
+                  "display" : "FC Delay",
+                  "description" : "Current Flow Control Delay",
+                  "defaultValue" : "0"
+                },
+                "latency" : {
+                  "type" : "Long",
+                  "display" : "Latency (ms)",
+                  "description" : "Current average Latency of Messages in this Queue (average delta between produce and consume)",
+                  "defaultValue" : "0"
+                },
+                "mcache-messages" : {
+                  "type" : "Integer",
+                  "display" : "Current Cache Size Messages",
+                  "description" : "Number Messages in Cache",
+                  "defaultValue" : "0"
+                },
+                "mcache-size-kb" : {
+                  "type" : "Integer",
+                  "display" : "Current Cache Size (KB)",
+                  "description" : "Current Cache Size (KB)",
+                  "defaultValue" : "0"
+                },
+                "messagecount" : {
+                  "type" : "Integer",
+                  "display" : "Message Count",
+                  "description" : "Number Messages of this Queue",
+                  "defaultValue" : "0"
+                },
+                "msg-consume-rate" : {
+                  "type" : "Integer",
+                  "display" : "Consumed Msgs/s ",
+                  "description" : "Messages/Sec consumed from Queue",
+                  "defaultValue" : "0"
+                },
+                "msg-produce-rate" : {
+                  "type" : "Integer",
+                  "display" : "Produced Msgs/s",
+                  "description" : "Messages/Sec produced to Queue",
+                  "defaultValue" : "0"
+                },
+                "total-consumed" : {
+                  "type" : "Integer",
+                  "display" : "Total Consumed Msgs",
+                  "description" : "Total Number of Messages consumed from Queue",
+                  "defaultValue" : "0"
+                },
+                "total-produced" : {
+                  "type" : "Integer",
+                  "display" : "Total Produced Msgs",
+                  "description" : "Total Number of Messages produced to Queue",
+                  "defaultValue" : "0"
+                },
+                "active" : {
+                  "type" : "Boolean",
+                  "display" : "Queue is active",
+                  "description" : "States whether delivery to consumers is active or paused",
+                  "defaultValue" : "true"
+                }
+              },
+              "lists" : {
+                "receiver" : {
+                  "kind" : "LIST",
+                  "display" : "Queue Receiver",
+                  "description" : "Active Queue Receiver",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Active Queue Receiver",
+                    "description" : "Active Queue Receiver",
+                    "properties" : {
+                      "username" : {
+                        "type" : "String",
+                        "display" : "User Name",
+                        "description" : "User Name"
+                      },
+                      "clientid" : {
+                        "type" : "String",
+                        "display" : "Client Id",
+                        "description" : "Client Id"
+                      },
+                      "selector" : {
+                        "type" : "String",
+                        "display" : "Message Selector",
+                        "description" : "Message Selector"
+                      }
+                    }
+                  }
+                },
+                "sender" : {
+                  "kind" : "LIST",
+                  "display" : "Queue Sender",
+                  "description" : "Active Queue Sender",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Active Queue Sender",
+                    "description" : "Active Queue Sender",
+                    "properties" : {
+                      "username" : {
+                        "type" : "String",
+                        "display" : "User Name",
+                        "description" : "User Name"
+                      },
+                      "clientid" : {
+                        "type" : "String",
+                        "display" : "Client Id",
+                        "description" : "Client Id"
+                      }
+                    }
+                  }
+                },
+                "browser" : {
+                  "kind" : "LIST",
+                  "display" : "Queue Browser",
+                  "description" : "Active Queue Browser",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Active Queue Browser",
+                    "description" : "Active Queue Browser",
+                    "properties" : {
+                      "username" : {
+                        "type" : "String",
+                        "display" : "User Name",
+                        "description" : "User Name"
+                      },
+                      "clientid" : {
+                        "type" : "String",
+                        "display" : "Client Id",
+                        "description" : "Client Id"
+                      },
+                      "selector" : {
+                        "type" : "String",
+                        "display" : "Message Selector",
+                        "description" : "Message Selector"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "dynamicProperties" : [ "msg-consume-rate", "msg-produce-rate" ]
+          }
+        }
+      },
+      "sys$routing" : {
+        "kind" : "ENTITY",
+        "display" : "Routing Swiftlet",
+        "description" : "Routing Swiftlet",
+        "properties" : {
+          "reject-disconnect-delay" : {
+            "type" : "Long",
+            "display" : "Reject Disconnect Delay",
+            "description" : "Time (ms) after which a rejected Connection is closed",
+            "defaultValue" : "5000",
+            "min" : "1000"
+          },
+          "stage-valid-timeout" : {
+            "type" : "Long",
+            "display" : "Stage Valid Timeout",
+            "description" : "Time (ms) after which a Protocol Stage in a wait State becomes invalid",
+            "defaultValue" : "15000",
+            "min" : "1000"
+          },
+          "roundrobin-enabled" : {
+            "type" : "Boolean",
+            "display" : "Round Robin Scheduling",
+            "description" : "Enables/Disables Round Robin Scheduling",
+            "defaultValue" : "false",
+            "rebootRequired" : true
+          },
+          "inbound-flow-control-enabled" : {
+            "type" : "Boolean",
+            "display" : "Inbound Flow Control",
+            "description" : "Enables/Disables Inbound Flow Control",
+            "defaultValue" : "false",
+            "rebootRequired" : true
+          },
+          "crfactory-class" : {
+            "type" : "String",
+            "display" : "C/R Factory Class",
+            "description" : "Challenge/Response Factory Class",
+            "defaultValue" : "com.swiftmq.auth.ChallengeResponseFactoryImpl",
+            "rebootRequired" : true
+          },
+          "route-announce-hop-limit" : {
+            "type" : "Integer",
+            "display" : "Route Announce Hop Limit",
+            "description" : "Maximum Hop Count for Route Announce (-1 = unlimited)",
+            "defaultValue" : "3"
+          }
+        },
+        "entities" : {
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Usage",
+            "lists" : {
+              "connections" : {
+                "kind" : "LIST",
+                "display" : "Active Routing Connections",
+                "description" : "Active Routing Connections",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Active Routing Connection",
+                  "description" : "Active Routing Connection",
+                  "properties" : {
+                    "routername" : {
+                      "type" : "String",
+                      "display" : "Router Name",
+                      "description" : "Name of the connected Router"
+                    },
+                    "connecttime" : {
+                      "type" : "String",
+                      "display" : "Connect Time",
+                      "description" : "Connect Time"
+                    },
+                    "protocol-version" : {
+                      "type" : "String",
+                      "display" : "Protocol Version",
+                      "description" : "Protocol Version"
+                    },
+                    "uses-xa" : {
+                      "type" : "Boolean",
+                      "display" : "Uses XA",
+                      "description" : "Uses 2 Phase Commit Protocol (XA) if enabled",
+                      "defaultValue" : "false"
+                    }
+                  }
+                }
+              },
+              "routing-table" : {
+                "kind" : "LIST",
+                "display" : "Routing Table",
+                "description" : "Routing Table",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Destination",
+                  "description" : "Destination",
+                  "lists" : {
+                    "dynamic-routes" : {
+                      "kind" : "LIST",
+                      "display" : "Dynamic Routes",
+                      "description" : "Dynamic Routes",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "Dynamic Route",
+                        "description" : "Dynamic Route"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lists" : {
+          "static-routes" : {
+            "kind" : "LIST",
+            "display" : "Static Routes",
+            "description" : "Static Route Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Static Route",
+              "description" : "Static Route Definition"
+            }
+          },
+          "filters" : {
+            "kind" : "LIST",
+            "display" : "Route Filters",
+            "description" : "Route Filter Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Route Filter",
+              "description" : "Route Filter Definition",
+              "properties" : {
+                "type" : {
+                  "type" : "String",
+                  "display" : "Filter Type",
+                  "description" : "Filter Type",
+                  "choices" : [ "include_by_hop", "include_by_destination", "exclude_by_hop", "exclude_by_destination" ],
+                  "readOnly" : true,
+                  "mandatory" : true
+                }
+              },
+              "lists" : {
+                "routers" : {
+                  "kind" : "LIST",
+                  "display" : "Routers",
+                  "description" : "Routers to filter",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Router to filter",
+                    "description" : "Router to filter"
+                  }
+                }
+              }
+            }
+          },
+          "listeners" : {
+            "kind" : "LIST",
+            "display" : "Listeners",
+            "description" : "Listener Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Listener",
+              "description" : "Listener Definition",
+              "properties" : {
+                "bindaddress" : {
+                  "type" : "String",
+                  "display" : "Bind IP Address",
+                  "description" : "Listener Bind IP Address",
+                  "readOnly" : true
+                },
+                "port" : {
+                  "type" : "Integer",
+                  "display" : "Port",
+                  "description" : "Listener Port",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "use-tcp-no-delay" : {
+                  "type" : "Boolean",
+                  "display" : "Use TCP No Delay",
+                  "description" : "Use Tcp No Delay",
+                  "defaultValue" : "true",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "socketfactory-class" : {
+                  "type" : "String",
+                  "display" : "Socketfactory Class",
+                  "description" : "Listener Socketfactory Class",
+                  "defaultValue" : "com.swiftmq.net.PlainSocketFactory",
+                  "readOnly" : true
+                },
+                "password" : {
+                  "type" : "String",
+                  "display" : "Password",
+                  "description" : "Password",
+                  "readOnly" : true,
+                  "secret" : true
+                },
+                "keepalive-interval" : {
+                  "type" : "Long",
+                  "display" : "Keep Alive Interval",
+                  "description" : "Interval for sending Keep Alive Messages",
+                  "defaultValue" : "60000",
+                  "readOnly" : true
+                },
+                "inbound-transaction-size" : {
+                  "type" : "Integer",
+                  "display" : "Inbound Transaction Size",
+                  "description" : "Number of Messages per Transaction",
+                  "defaultValue" : "20",
+                  "readOnly" : true
+                },
+                "inbound-window-size" : {
+                  "type" : "Integer",
+                  "display" : "Inbound Window Size",
+                  "description" : "Max. Number of open Transactions",
+                  "defaultValue" : "10",
+                  "readOnly" : true
+                },
+                "router-input-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Buffer Size",
+                  "description" : "Router Network Input Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "65536",
+                  "readOnly" : true
+                },
+                "router-input-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Extend Size",
+                  "description" : "Router Network Input Extend Size",
+                  "defaultValue" : "65536",
+                  "min" : "65536",
+                  "readOnly" : true
+                },
+                "router-output-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Buffer Size",
+                  "description" : "Router Network Output Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "router-output-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Extend Size",
+                  "description" : "Router Network Output Extend Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "use-compression" : {
+                  "type" : "Boolean",
+                  "display" : "Use compression",
+                  "description" : "Uses Wirelevel Compression if enabled",
+                  "defaultValue" : "false",
+                  "readOnly" : true
+                },
+                "use-xa" : {
+                  "type" : "Boolean",
+                  "display" : "Use XA",
+                  "description" : "Uses 2 Phase Commit Protocol (XA) if enabled",
+                  "defaultValue" : "true",
+                  "readOnly" : true
+                }
+              },
+              "lists" : {
+                "host-access-list" : {
+                  "kind" : "LIST",
+                  "display" : "Host Access List",
+                  "description" : "Host Access List",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Host Access Entry",
+                    "description" : "Host Access Entry"
+                  }
+                }
+              }
+            }
+          },
+          "connectors" : {
+            "kind" : "LIST",
+            "display" : "Connectors",
+            "description" : "Connector Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Connector",
+              "description" : "Connector Definition",
+              "properties" : {
+                "hostname" : {
+                  "type" : "String",
+                  "display" : "Remote Hostname",
+                  "description" : "Remote Hostname",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Enabled",
+                  "description" : "Enables/Disables this Connector",
+                  "defaultValue" : "true"
+                },
+                "port" : {
+                  "type" : "Integer",
+                  "display" : "Remote Port",
+                  "description" : "Remote Port",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "use-tcp-no-delay" : {
+                  "type" : "Boolean",
+                  "display" : "Use TCP No Delay",
+                  "description" : "Use Tcp No Delay",
+                  "defaultValue" : "true",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "socketfactory-class" : {
+                  "type" : "String",
+                  "display" : "Socketfactory Class",
+                  "description" : "Connector Socketfactory Class",
+                  "defaultValue" : "com.swiftmq.net.PlainSocketFactory",
+                  "readOnly" : true
+                },
+                "password" : {
+                  "type" : "String",
+                  "display" : "Password",
+                  "description" : "Password",
+                  "secret" : true
+                },
+                "retry-time" : {
+                  "type" : "Long",
+                  "display" : "Retry Time",
+                  "description" : "Retry Time",
+                  "defaultValue" : "60000",
+                  "min" : "1000",
+                  "readOnly" : true
+                },
+                "inbound-transaction-size" : {
+                  "type" : "Integer",
+                  "display" : "Inbound Transaction Size",
+                  "description" : "Number of Messages per Transaction",
+                  "defaultValue" : "20",
+                  "readOnly" : true
+                },
+                "inbound-window-size" : {
+                  "type" : "Integer",
+                  "display" : "Inbound Window Size",
+                  "description" : "Max. Number of open Transactions",
+                  "defaultValue" : "10",
+                  "readOnly" : true
+                },
+                "router-input-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Buffer Size",
+                  "description" : "Router Network Input Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "65536",
+                  "readOnly" : true
+                },
+                "router-input-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Input Extend Size",
+                  "description" : "Router Network Input Extend Size",
+                  "defaultValue" : "65536",
+                  "min" : "65536",
+                  "readOnly" : true
+                },
+                "router-output-buffer-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Buffer Size",
+                  "description" : "Router Network Output Buffer Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "router-output-extend-size" : {
+                  "type" : "Integer",
+                  "display" : "Router Network Output Extend Size",
+                  "description" : "Router Network Output Extend Size",
+                  "defaultValue" : "131072",
+                  "min" : "1024",
+                  "readOnly" : true
+                },
+                "use-compression" : {
+                  "type" : "Boolean",
+                  "display" : "Use compression",
+                  "description" : "Uses Wirelevel Compression if enabled",
+                  "defaultValue" : "false",
+                  "readOnly" : true
+                },
+                "use-xa" : {
+                  "type" : "Boolean",
+                  "display" : "Use XA",
+                  "description" : "Uses 2 Phase Commit Protocol (XA) if enabled",
+                  "defaultValue" : "true",
+                  "readOnly" : true
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$scheduler" : {
+        "kind" : "ENTITY",
+        "display" : "Scheduler Swiftlet",
+        "description" : "Scheduler Swiftlet",
+        "entities" : {
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Usage",
+            "lists" : {
+              "job-groups" : {
+                "kind" : "LIST",
+                "display" : "Registered Job Groups",
+                "description" : "Registered Job Groups",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Registered Job Group",
+                  "description" : "Registered Job Group",
+                  "lists" : {
+                    "jobs" : {
+                      "kind" : "LIST",
+                      "display" : "Registered Jobs",
+                      "description" : "Registered Jobs",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "Registered Job",
+                        "description" : "Registered Job",
+                        "properties" : {
+                          "description" : {
+                            "type" : "String",
+                            "display" : "Description",
+                            "description" : "Description",
+                            "readOnly" : true
+                          }
+                        },
+                        "lists" : {
+                          "parameters" : {
+                            "kind" : "LIST",
+                            "display" : "Job Parameters",
+                            "description" : "Job Parameters",
+                            "template" : {
+                              "kind" : "ENTITY",
+                              "display" : "Job Parameter",
+                              "description" : "Job Parameter",
+                              "properties" : {
+                                "description" : {
+                                  "type" : "String",
+                                  "display" : "Description",
+                                  "description" : "Description",
+                                  "readOnly" : true
+                                },
+                                "default" : {
+                                  "type" : "String",
+                                  "display" : "Default Value",
+                                  "description" : "Default Value",
+                                  "readOnly" : true
+                                },
+                                "mandatory" : {
+                                  "type" : "Boolean",
+                                  "display" : "Mandatory",
+                                  "description" : "Mandatory",
+                                  "readOnly" : true
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "active-job-schedules" : {
+                "kind" : "LIST",
+                "display" : "Active Job Schedules",
+                "description" : "Active Job Schedules",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Active Job Schedule",
+                  "description" : "Active Job Schedule",
+                  "properties" : {
+                    "job-group" : {
+                      "type" : "String",
+                      "display" : "Job Group",
+                      "description" : "Job Group",
+                      "readOnly" : true
+                    },
+                    "job-name" : {
+                      "type" : "String",
+                      "display" : "Job Name",
+                      "description" : "Job Name",
+                      "readOnly" : true
+                    },
+                    "state" : {
+                      "type" : "String",
+                      "display" : "State",
+                      "description" : "State",
+                      "readOnly" : true
+                    },
+                    "next-start" : {
+                      "type" : "String",
+                      "display" : "Next Start",
+                      "description" : "Next Start",
+                      "readOnly" : true
+                    },
+                    "next-stop" : {
+                      "type" : "String",
+                      "display" : "Next Stop",
+                      "description" : "Next Stop",
+                      "readOnly" : true
+                    }
+                  },
+                  "lists" : {
+                    "history" : {
+                      "kind" : "LIST",
+                      "display" : "History",
+                      "description" : "History",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "History",
+                        "description" : "History",
+                        "properties" : {
+                          "logtime" : {
+                            "type" : "String",
+                            "display" : "Time",
+                            "description" : "Time",
+                            "readOnly" : true
+                          },
+                          "state" : {
+                            "type" : "String",
+                            "display" : "State",
+                            "description" : "State",
+                            "readOnly" : true
+                          },
+                          "xception" : {
+                            "type" : "String",
+                            "display" : "Message",
+                            "description" : "Message",
+                            "readOnly" : true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "active-message-schedules" : {
+                "kind" : "LIST",
+                "display" : "Active Message Schedules",
+                "description" : "Active Message Schedules",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Active Message Schedule",
+                  "description" : "Active Message Schedule",
+                  "properties" : {
+                    "state" : {
+                      "type" : "String",
+                      "display" : "State",
+                      "description" : "State",
+                      "readOnly" : true
+                    },
+                    "next-start" : {
+                      "type" : "String",
+                      "display" : "Next Start",
+                      "description" : "Next Start",
+                      "readOnly" : true
+                    },
+                    "next-stop" : {
+                      "type" : "String",
+                      "display" : "Next Stop",
+                      "description" : "Next Stop",
+                      "readOnly" : true
+                    },
+                    "schedule-date-from" : {
+                      "type" : "String",
+                      "display" : "Date From",
+                      "description" : "Date From",
+                      "readOnly" : true
+                    },
+                    "schedule-date-to" : {
+                      "type" : "String",
+                      "display" : "Date To",
+                      "description" : "Date To",
+                      "readOnly" : true
+                    },
+                    "schedule-calendar" : {
+                      "type" : "String",
+                      "display" : "Calendar",
+                      "description" : "Calendar",
+                      "readOnly" : true
+                    },
+                    "schedule-logging-enabled" : {
+                      "type" : "Boolean",
+                      "display" : "Logging Enabled",
+                      "description" : "Logging Enabled",
+                      "readOnly" : true
+                    },
+                    "schedule-time-expression" : {
+                      "type" : "String",
+                      "display" : "Time Expression",
+                      "description" : "Time Expression",
+                      "readOnly" : true
+                    }
+                  },
+                  "lists" : {
+                    "history" : {
+                      "kind" : "LIST",
+                      "display" : "History",
+                      "description" : "History",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "History",
+                        "description" : "History",
+                        "properties" : {
+                          "logtime" : {
+                            "type" : "String",
+                            "display" : "Time",
+                            "description" : "Time",
+                            "readOnly" : true
+                          },
+                          "state" : {
+                            "type" : "String",
+                            "display" : "State",
+                            "description" : "State",
+                            "readOnly" : true
+                          },
+                          "xception" : {
+                            "type" : "String",
+                            "display" : "Message",
+                            "description" : "Message",
+                            "readOnly" : true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lists" : {
+          "calendars" : {
+            "kind" : "LIST",
+            "display" : "Calendars",
+            "description" : "Calendars",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Calendar",
+              "description" : "Calendar",
+              "properties" : {
+                "type" : {
+                  "type" : "String",
+                  "display" : "Calendar Type",
+                  "description" : "Calendar Type",
+                  "defaultValue" : "exclude",
+                  "choices" : [ "include", "exclude" ]
+                },
+                "base-calendar" : {
+                  "type" : "String",
+                  "display" : "Base Calendar",
+                  "description" : "Calendar which is Base for this Calendar"
+                },
+                "enable-weekdays" : {
+                  "type" : "Boolean",
+                  "display" : "Enable Week Days",
+                  "description" : "Enable Week Days on this Calendar",
+                  "defaultValue" : "false"
+                },
+                "enable-monthdays" : {
+                  "type" : "Boolean",
+                  "display" : "Enable Month Days",
+                  "description" : "Enable Month Days on this Calendar",
+                  "defaultValue" : "false"
+                },
+                "enable-monthdays-last" : {
+                  "type" : "Boolean",
+                  "display" : "Enable Last Month Day",
+                  "description" : "Enable Last Month Day on this Calendar",
+                  "defaultValue" : "false"
+                },
+                "enable-annualdays" : {
+                  "type" : "Boolean",
+                  "display" : "Enable Annual Days",
+                  "description" : "Enable Annual Days on this Calendar",
+                  "defaultValue" : "false"
+                },
+                "enable-dateranges" : {
+                  "type" : "Boolean",
+                  "display" : "Enable Dange Ranges",
+                  "description" : "Enable Dange Ranges on this Calendar",
+                  "defaultValue" : "false"
+                }
+              },
+              "entities" : {
+                "weekdays" : {
+                  "kind" : "ENTITY",
+                  "display" : "Week Days",
+                  "description" : "Week Days",
+                  "properties" : {
+                    "day-01" : {
+                      "type" : "Boolean",
+                      "display" : "Sunday",
+                      "description" : "Sunday",
+                      "defaultValue" : "false"
+                    },
+                    "day-02" : {
+                      "type" : "Boolean",
+                      "display" : "Monday",
+                      "description" : "Monday",
+                      "defaultValue" : "false"
+                    },
+                    "day-03" : {
+                      "type" : "Boolean",
+                      "display" : "Tuesday",
+                      "description" : "Tuesday",
+                      "defaultValue" : "false"
+                    },
+                    "day-04" : {
+                      "type" : "Boolean",
+                      "display" : "Wednesday",
+                      "description" : "Wednesday",
+                      "defaultValue" : "false"
+                    },
+                    "day-05" : {
+                      "type" : "Boolean",
+                      "display" : "Thursday",
+                      "description" : "Thursday",
+                      "defaultValue" : "false"
+                    },
+                    "day-06" : {
+                      "type" : "Boolean",
+                      "display" : "Friday",
+                      "description" : "Friday",
+                      "defaultValue" : "false"
+                    },
+                    "day-07" : {
+                      "type" : "Boolean",
+                      "display" : "Saturday",
+                      "description" : "Saturday",
+                      "defaultValue" : "false"
+                    }
+                  }
+                },
+                "monthdays" : {
+                  "kind" : "ENTITY",
+                  "display" : "Month Days",
+                  "description" : "Month Days",
+                  "properties" : {
+                    "day-01" : {
+                      "type" : "Boolean",
+                      "display" : "01.",
+                      "description" : "01.",
+                      "defaultValue" : "false"
+                    },
+                    "day-02" : {
+                      "type" : "Boolean",
+                      "display" : "02.",
+                      "description" : "02.",
+                      "defaultValue" : "false"
+                    },
+                    "day-03" : {
+                      "type" : "Boolean",
+                      "display" : "03.",
+                      "description" : "03.",
+                      "defaultValue" : "false"
+                    },
+                    "day-04" : {
+                      "type" : "Boolean",
+                      "display" : "04.",
+                      "description" : "04.",
+                      "defaultValue" : "false"
+                    },
+                    "day-05" : {
+                      "type" : "Boolean",
+                      "display" : "05.",
+                      "description" : "05.",
+                      "defaultValue" : "false"
+                    },
+                    "day-06" : {
+                      "type" : "Boolean",
+                      "display" : "06.",
+                      "description" : "06.",
+                      "defaultValue" : "false"
+                    },
+                    "day-07" : {
+                      "type" : "Boolean",
+                      "display" : "07.",
+                      "description" : "07.",
+                      "defaultValue" : "false"
+                    },
+                    "day-08" : {
+                      "type" : "Boolean",
+                      "display" : "08.",
+                      "description" : "08.",
+                      "defaultValue" : "false"
+                    },
+                    "day-09" : {
+                      "type" : "Boolean",
+                      "display" : "09.",
+                      "description" : "09.",
+                      "defaultValue" : "false"
+                    },
+                    "day-10" : {
+                      "type" : "Boolean",
+                      "display" : "10.",
+                      "description" : "10.",
+                      "defaultValue" : "false"
+                    },
+                    "day-11" : {
+                      "type" : "Boolean",
+                      "display" : "11.",
+                      "description" : "11.",
+                      "defaultValue" : "false"
+                    },
+                    "day-12" : {
+                      "type" : "Boolean",
+                      "display" : "12.",
+                      "description" : "12.",
+                      "defaultValue" : "false"
+                    },
+                    "day-13" : {
+                      "type" : "Boolean",
+                      "display" : "13.",
+                      "description" : "13.",
+                      "defaultValue" : "false"
+                    },
+                    "day-14" : {
+                      "type" : "Boolean",
+                      "display" : "14.",
+                      "description" : "14.",
+                      "defaultValue" : "false"
+                    },
+                    "day-15" : {
+                      "type" : "Boolean",
+                      "display" : "15.",
+                      "description" : "15.",
+                      "defaultValue" : "false"
+                    },
+                    "day-16" : {
+                      "type" : "Boolean",
+                      "display" : "16.",
+                      "description" : "16.",
+                      "defaultValue" : "false"
+                    },
+                    "day-17" : {
+                      "type" : "Boolean",
+                      "display" : "17.",
+                      "description" : "17.",
+                      "defaultValue" : "false"
+                    },
+                    "day-18" : {
+                      "type" : "Boolean",
+                      "display" : "18.",
+                      "description" : "18.",
+                      "defaultValue" : "false"
+                    },
+                    "day-19" : {
+                      "type" : "Boolean",
+                      "display" : "19.",
+                      "description" : "19.",
+                      "defaultValue" : "false"
+                    },
+                    "day-20" : {
+                      "type" : "Boolean",
+                      "display" : "20.",
+                      "description" : "20.",
+                      "defaultValue" : "false"
+                    },
+                    "day-21" : {
+                      "type" : "Boolean",
+                      "display" : "21.",
+                      "description" : "21.",
+                      "defaultValue" : "false"
+                    },
+                    "day-22" : {
+                      "type" : "Boolean",
+                      "display" : "22.",
+                      "description" : "22.",
+                      "defaultValue" : "false"
+                    },
+                    "day-23" : {
+                      "type" : "Boolean",
+                      "display" : "23.",
+                      "description" : "23.",
+                      "defaultValue" : "false"
+                    },
+                    "day-24" : {
+                      "type" : "Boolean",
+                      "display" : "24.",
+                      "description" : "24.",
+                      "defaultValue" : "false"
+                    },
+                    "day-25" : {
+                      "type" : "Boolean",
+                      "display" : "25.",
+                      "description" : "25.",
+                      "defaultValue" : "false"
+                    },
+                    "day-26" : {
+                      "type" : "Boolean",
+                      "display" : "26.",
+                      "description" : "26.",
+                      "defaultValue" : "false"
+                    },
+                    "day-27" : {
+                      "type" : "Boolean",
+                      "display" : "27.",
+                      "description" : "27.",
+                      "defaultValue" : "false"
+                    },
+                    "day-28" : {
+                      "type" : "Boolean",
+                      "display" : "28.",
+                      "description" : "28.",
+                      "defaultValue" : "false"
+                    },
+                    "day-29" : {
+                      "type" : "Boolean",
+                      "display" : "29.",
+                      "description" : "29.",
+                      "defaultValue" : "false"
+                    },
+                    "day-30" : {
+                      "type" : "Boolean",
+                      "display" : "30.",
+                      "description" : "30.",
+                      "defaultValue" : "false"
+                    },
+                    "day-31" : {
+                      "type" : "Boolean",
+                      "display" : "31.",
+                      "description" : "31.",
+                      "defaultValue" : "false"
+                    },
+                    "last" : {
+                      "type" : "Boolean",
+                      "display" : "Last",
+                      "description" : "Last Day in Month",
+                      "defaultValue" : "false"
+                    }
+                  }
+                }
+              },
+              "lists" : {
+                "annualdays" : {
+                  "kind" : "LIST",
+                  "display" : "Annual Days",
+                  "description" : "Annual Days",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Annual Day",
+                    "description" : "Annual Day",
+                    "properties" : {
+                      "day" : {
+                        "type" : "String",
+                        "display" : "Day",
+                        "description" : "Day",
+                        "choices" : [ "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31" ],
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "month" : {
+                        "type" : "String",
+                        "display" : "Month",
+                        "description" : "Month",
+                        "choices" : [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ],
+                        "readOnly" : true,
+                        "mandatory" : true
+                      }
+                    }
+                  }
+                },
+                "date-ranges" : {
+                  "kind" : "LIST",
+                  "display" : "Date Ranges",
+                  "description" : "Date Ranges",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Date Range",
+                    "description" : "Date Range",
+                    "properties" : {
+                      "from" : {
+                        "type" : "String",
+                        "display" : "From Date [yyyy-mm-dd]",
+                        "description" : "From Date",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      },
+                      "to" : {
+                        "type" : "String",
+                        "display" : "To Date [yyyy-mm-dd]",
+                        "description" : "To Date",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "schedules" : {
+            "kind" : "LIST",
+            "display" : "Job Schedules",
+            "description" : "Job Schedules",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Job Schedule",
+              "description" : "Job Schedule",
+              "properties" : {
+                "enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Enabled",
+                  "description" : "Schedule enabled/disabled",
+                  "defaultValue" : "false"
+                },
+                "logging-enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Logging Enabled",
+                  "description" : "If true, start/stop are logged in SwiftMQ's log file",
+                  "defaultValue" : "false"
+                },
+                "calendar" : {
+                  "type" : "String",
+                  "display" : "Calendar",
+                  "description" : "Apply this Calendar"
+                },
+                "job-group" : {
+                  "type" : "String",
+                  "display" : "Job Group",
+                  "description" : "Job Group",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "job-name" : {
+                  "type" : "String",
+                  "display" : "Job Name",
+                  "description" : "Job Name",
+                  "readOnly" : true,
+                  "mandatory" : true
+                },
+                "date-from" : {
+                  "type" : "String",
+                  "display" : "From Date [yyyy-MM-dd]",
+                  "description" : "From Date",
+                  "defaultValue" : "now",
+                  "mandatory" : true
+                },
+                "date-to" : {
+                  "type" : "String",
+                  "display" : "To Date [yyyy-MM-dd]",
+                  "description" : "To Date",
+                  "defaultValue" : "forever",
+                  "mandatory" : true
+                },
+                "max-runtime" : {
+                  "type" : "String",
+                  "display" : "Max. Runtime",
+                  "description" : "n('s'|'m'|'h'), e.g. 30m"
+                },
+                "time-expression" : {
+                  "type" : "String",
+                  "display" : "Time Expression",
+                  "description" : "('at' HH:mm[:ss][, HH:mm[:ss]...]) | ('start' HH:mm[:ss] 'stop' HH:mm[:ss] 'delay' n('s'|'m'|'h' ['repeat' n])",
+                  "mandatory" : true
+                }
+              },
+              "lists" : {
+                "parameters" : {
+                  "kind" : "LIST",
+                  "display" : "Parameters",
+                  "description" : "Parameters",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Parameter",
+                    "description" : "Parameter",
+                    "properties" : {
+                      "value" : {
+                        "type" : "String",
+                        "display" : "Value",
+                        "description" : "Value",
+                        "readOnly" : true,
+                        "mandatory" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$store" : {
+        "kind" : "ENTITY",
+        "display" : "Store Swiftlet",
+        "description" : "Store Swiftlet",
+        "entities" : {
+          "backup" : {
+            "kind" : "ENTITY",
+            "display" : "Backup",
+            "description" : "Backup Settings",
+            "properties" : {
+              "path" : {
+                "type" : "String",
+                "display" : "Backup Path",
+                "description" : "Root Path for Backup Save Sets",
+                "mandatory" : true
+              },
+              "keep-generations" : {
+                "type" : "Integer",
+                "display" : "Keep Generations",
+                "description" : "Number of Generations to keep",
+                "defaultValue" : "3",
+                "min" : "1"
+              }
+            }
+          },
+          "database" : {
+            "kind" : "ENTITY",
+            "display" : "Database",
+            "description" : "Database Settings",
+            "properties" : {
+              "path" : {
+                "type" : "String",
+                "display" : "Path",
+                "description" : "Path of the Database (page.db)",
+                "mandatory" : true,
+                "rebootRequired" : true
+              },
+              "initial-db-size-pages" : {
+                "type" : "Integer",
+                "display" : "Initial Database Size (Pages)",
+                "description" : "Initial Size of the Database in Pages",
+                "defaultValue" : "25600",
+                "min" : "10",
+                "rebootRequired" : true
+              },
+              "size-collect-interval" : {
+                "type" : "Long",
+                "display" : "Size Collect Interval",
+                "description" : "Interval to collect the Usage",
+                "defaultValue" : "1000"
+              },
+              "page-size-current" : {
+                "type" : "Integer",
+                "display" : "Current Page Size (Bytes)",
+                "description" : "Current Size of the Database Pages",
+                "defaultValue" : "2048",
+                "readOnly" : true
+              },
+              "page-size-recommended" : {
+                "type" : "Integer",
+                "display" : "Recommended Page Size (Bytes)",
+                "description" : "Recommended Size of the Database Pages",
+                "defaultValue" : "2048",
+                "readOnly" : true
+              },
+              "page-size-max" : {
+                "type" : "Integer",
+                "display" : "Maximum Page Size (Bytes)",
+                "description" : "Maximum Page Size",
+                "defaultValue" : "32768",
+                "min" : "2048"
+              },
+              "perform-compact-on-startup" : {
+                "type" : "Boolean",
+                "display" : "Perform Compact on page.db on Startup",
+                "description" : "Perform a compact of the page.db on startup if current page size is equal to recommended page size",
+                "defaultValue" : "false"
+              },
+              "perform-resize-on-startup" : {
+                "type" : "Boolean",
+                "display" : "Perform Page Resize on Startup",
+                "description" : "Perform a page resize on startup if the recommended size is greater than the current page size",
+                "defaultValue" : "false"
+              }
+            }
+          },
+          "cache" : {
+            "kind" : "ENTITY",
+            "display" : "Cache",
+            "description" : "Cache Settings",
+            "properties" : {
+              "min-size" : {
+                "type" : "Integer",
+                "display" : "Min. Size (Pages)",
+                "description" : "Min. Size (Pages)",
+                "defaultValue" : "1024",
+                "min" : "512",
+                "rebootRequired" : true
+              },
+              "max-size" : {
+                "type" : "Integer",
+                "display" : "Max. Size (Pages)",
+                "description" : "Max. Size (Pages)",
+                "defaultValue" : "2048",
+                "min" : "512",
+                "rebootRequired" : true
+              }
+            }
+          },
+          "transaction-log" : {
+            "kind" : "ENTITY",
+            "display" : "Transaction Log",
+            "description" : "Transaction Log Settings",
+            "properties" : {
+              "path" : {
+                "type" : "String",
+                "display" : "Path",
+                "description" : "Path of the Transaction Log (transaction.log)",
+                "mandatory" : true,
+                "rebootRequired" : true
+              },
+              "checkpoint-size" : {
+                "type" : "Long",
+                "display" : "Checkpoint Size",
+                "description" : "Size at which a Checkpoint is performed",
+                "defaultValue" : "104857600",
+                "min" : "1048576",
+                "rebootRequired" : true
+              },
+              "force-sync" : {
+                "type" : "Boolean",
+                "display" : "Force Sync",
+                "description" : "Force a sync with the disk",
+                "defaultValue" : "false",
+                "rebootRequired" : true
+              }
+            }
+          },
+          "swap" : {
+            "kind" : "ENTITY",
+            "display" : "Swap",
+            "description" : "Swap Settings",
+            "properties" : {
+              "path" : {
+                "type" : "String",
+                "display" : "Path",
+                "description" : "Path of Swap Files",
+                "mandatory" : true,
+                "rebootRequired" : true
+              },
+              "roll-over-size" : {
+                "type" : "Long",
+                "display" : "Roll Over Size",
+                "description" : "Roll Over Size",
+                "defaultValue" : "10485760",
+                "min" : "1048576",
+                "rebootRequired" : true
+              }
+            }
+          },
+          "durable-subscriber" : {
+            "kind" : "ENTITY",
+            "display" : "Durable Subscriber",
+            "description" : "Durable Subscriber Settings",
+            "properties" : {
+              "path" : {
+                "type" : "String",
+                "display" : "Path",
+                "description" : "Path of Durable Subscriber Files",
+                "mandatory" : true,
+                "rebootRequired" : true
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Usage",
+            "lists" : {
+              "backup" : {
+                "kind" : "LIST",
+                "display" : "Generated Backup Save Sets",
+                "description" : "Generated Backup Save Sets",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Generated Backup Save Set",
+                  "description" : "Generated Backup Save Set",
+                  "lists" : {
+                    "files" : {
+                      "kind" : "LIST",
+                      "display" : "Files",
+                      "description" : "Files",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "File",
+                        "description" : "File",
+                        "properties" : {
+                          "filesize" : {
+                            "type" : "Long",
+                            "display" : "Size (Bytes)",
+                            "description" : "File Size"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "files" : {
+                "kind" : "LIST",
+                "display" : "Files",
+                "description" : "Files",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "File",
+                  "description" : "File",
+                  "properties" : {
+                    "free-pages" : {
+                      "type" : "Integer",
+                      "display" : "Free Pages",
+                      "description" : "Number of Free Pages",
+                      "defaultValue" : "0"
+                    },
+                    "used-pages" : {
+                      "type" : "Integer",
+                      "display" : "Used Pages",
+                      "description" : "Number of Used Pages",
+                      "defaultValue" : "0"
+                    },
+                    "file-size" : {
+                      "type" : "Long",
+                      "display" : "File Size (KB)",
+                      "description" : "Size of this File in KB",
+                      "defaultValue" : "0"
+                    }
+                  }
+                },
+                "dynamicProperties" : [ "used-pages", "free-pages" ]
+              },
+              "scan" : {
+                "kind" : "LIST",
+                "display" : "Scan Result",
+                "description" : "Result of the page.db scan",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Scan",
+                  "description" : "Scan Result",
+                  "properties" : {
+                    "size" : {
+                      "type" : "Integer",
+                      "display" : "Message Size (KB)",
+                      "description" : "Message Size (KB)",
+                      "defaultValue" : "0"
+                    },
+                    "number-messages" : {
+                      "type" : "Integer",
+                      "display" : "Number Messages",
+                      "description" : "Number of Messages with this size",
+                      "defaultValue" : "0"
+                    }
+                  }
+                },
+                "dynamicProperties" : [ "size", "number-messages" ]
+              }
+            }
+          }
+        }
+      },
+      "sys$streams" : {
+        "kind" : "ENTITY",
+        "display" : "Streams Swiftlet",
+        "description" : "SwiftMQ Streams Microservice Engine",
+        "properties" : {
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Interval for collecting Stream usage information",
+            "defaultValue" : "1000"
+          },
+          "stream-grant-predicates" : {
+            "type" : "String",
+            "display" : "Stream Grant Predicates",
+            "description" : "SQL-Like Predicates to grant Stream Topic access",
+            "defaultValue" : "stream\\_%"
+          },
+          "stream-lib-directory" : {
+            "type" : "String",
+            "display" : "Stream Lib Directory",
+            "description" : "Hot deploy directory for external jar files used from a stream",
+            "defaultValue" : "../data/streamlib",
+            "rebootRequired" : true
+          }
+        },
+        "lists" : {
+          "domains" : {
+            "kind" : "LIST",
+            "display" : "Domains",
+            "description" : "Stream Domain Names",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Domain",
+              "description" : "Stream Domain Name",
+              "lists" : {
+                "packages" : {
+                  "kind" : "LIST",
+                  "display" : "Packages",
+                  "description" : "Stream Packages",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Package",
+                    "description" : "Stream Package",
+                    "lists" : {
+                      "streams" : {
+                        "kind" : "LIST",
+                        "display" : "Streams",
+                        "description" : "Complex Event Streams",
+                        "template" : {
+                          "kind" : "ENTITY",
+                          "display" : "Stream",
+                          "description" : "Stream",
+                          "properties" : {
+                            "restart-delay" : {
+                              "type" : "Long",
+                              "display" : "Restart Delay (ms)",
+                              "description" : "Delay in ms to restart the Stream on an exception",
+                              "defaultValue" : "-1"
+                            },
+                            "restart-max" : {
+                              "type" : "Integer",
+                              "display" : "Maximum Restarts",
+                              "description" : "Maximum number of restart attempts",
+                              "defaultValue" : "-1"
+                            },
+                            "script-language" : {
+                              "type" : "String",
+                              "display" : "Script Language",
+                              "description" : "Name of the Scripting Language",
+                              "defaultValue" : "JavaScript"
+                            },
+                            "script-file" : {
+                              "type" : "String",
+                              "display" : "Script File",
+                              "description" : "Name of the Script File",
+                              "mandatory" : true
+                            },
+                            "enabled" : {
+                              "type" : "Boolean",
+                              "display" : "Enabled",
+                              "description" : "Enables/Disables this Stream",
+                              "defaultValue" : "false"
+                            }
+                          },
+                          "lists" : {
+                            "parameters" : {
+                              "kind" : "LIST",
+                              "display" : "Parameters",
+                              "description" : "Parameters",
+                              "template" : {
+                                "kind" : "ENTITY",
+                                "display" : "Parameter",
+                                "description" : "Parameter",
+                                "properties" : {
+                                  "value" : {
+                                    "type" : "String",
+                                    "display" : "Value",
+                                    "description" : "Value",
+                                    "mandatory" : true
+                                  }
+                                }
+                              }
+                            },
+                            "dependencies" : {
+                              "kind" : "LIST",
+                              "display" : "Dependencies",
+                              "description" : "Dependencies from other Streams",
+                              "template" : {
+                                "kind" : "ENTITY",
+                                "display" : "Dependency",
+                                "description" : "Stream Dependency"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Active Streams",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Active Stream",
+              "description" : "Active Stream",
+              "properties" : {
+                "starttime" : {
+                  "type" : "String",
+                  "display" : "Stream Start Time",
+                  "description" : "Start Time of this Stream"
+                },
+                "stream-last-onmessage-time" : {
+                  "type" : "Integer",
+                  "display" : "Last onMessage Time (µs)",
+                  "description" : "Last Time in µs it took in onMessage",
+                  "defaultValue" : "0"
+                },
+                "stream-processing-rate" : {
+                  "type" : "Integer",
+                  "display" : "Processing Rate Msgs/s ",
+                  "description" : "Messages/Sec processed by this Stream",
+                  "defaultValue" : "0"
+                },
+                "stream-total-processed" : {
+                  "type" : "Integer",
+                  "display" : "Total Processed Msgs",
+                  "description" : "Total Number of Messages processed by this Stream",
+                  "defaultValue" : "0"
+                }
+              },
+              "lists" : {
+                "inputs" : {
+                  "kind" : "LIST",
+                  "display" : "Inputs",
+                  "description" : "Inputs",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Input",
+                    "description" : "Input",
+                    "properties" : {
+                      "atype" : {
+                        "type" : "String",
+                        "display" : "Input Type",
+                        "description" : "Type of this Input"
+                      },
+                      "destinationname" : {
+                        "type" : "String",
+                        "display" : "Destination Name",
+                        "description" : "Destination Name"
+                      },
+                      "input-processing-rate" : {
+                        "type" : "Integer",
+                        "display" : "Processing Rate Msgs/s ",
+                        "description" : "Messages/Sec processed by this Input",
+                        "defaultValue" : "0"
+                      },
+                      "input-total-processed" : {
+                        "type" : "Integer",
+                        "display" : "Total Processed Msgs",
+                        "description" : "Total Number of Messages processed by this Input",
+                        "defaultValue" : "0"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "input-processing-rate" ]
+                },
+                "timers" : {
+                  "kind" : "LIST",
+                  "display" : "Timers",
+                  "description" : "Timers",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Timer",
+                    "description" : "Timer",
+                    "properties" : {
+                      "timer-last-ontimer-time" : {
+                        "type" : "Integer",
+                        "display" : "Last onTimer Time (µs)",
+                        "description" : "Last Time in µs it took in onTimer",
+                        "defaultValue" : "0"
+                      },
+                      "timer-type" : {
+                        "type" : "String",
+                        "display" : "Timer Type",
+                        "description" : "Type of this Timer"
+                      },
+                      "started" : {
+                        "type" : "Boolean",
+                        "display" : "Started",
+                        "description" : "Timer Started?",
+                        "defaultValue" : "false"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "timer-last-ontimer-time" ]
+                },
+                "memories" : {
+                  "kind" : "LIST",
+                  "display" : "Memories",
+                  "description" : "Memories",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Memory",
+                    "description" : "Memory",
+                    "properties" : {
+                      "memory-type" : {
+                        "type" : "String",
+                        "display" : "Memory Type",
+                        "description" : "Type of this Memory"
+                      },
+                      "size" : {
+                        "type" : "Integer",
+                        "display" : "Size (Messages)",
+                        "description" : "Size of this Memory in Messages",
+                        "defaultValue" : "0"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "size" ]
+                },
+                "jdbclookups" : {
+                  "kind" : "LIST",
+                  "display" : "JDBCLookups",
+                  "description" : "JDBCLookups",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "JDBCLookup",
+                    "description" : "JDBCLookup",
+                    "properties" : {
+                      "last-query-time" : {
+                        "type" : "Integer",
+                        "display" : "Last Query Time (µs)",
+                        "description" : "Last Time in µs it took in query",
+                        "defaultValue" : "0"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "last-query-time" ]
+                },
+                "mailservers" : {
+                  "kind" : "LIST",
+                  "display" : "Mail Servers",
+                  "description" : "Mail Servers",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Mail Server",
+                    "description" : "Mail Server",
+                    "properties" : {
+                      "emails-sent" : {
+                        "type" : "Integer",
+                        "display" : "eMails sent",
+                        "description" : "Number of eMail sent",
+                        "defaultValue" : "0"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "emails-sent" ]
+                },
+                "tempqueues" : {
+                  "kind" : "LIST",
+                  "display" : "Temp Queues",
+                  "description" : "Temp Queues",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Temp Queue",
+                    "description" : "Temp Queue",
+                    "properties" : {
+                      "queuename" : {
+                        "type" : "String",
+                        "display" : "Queue Name",
+                        "description" : "Name of the temp Queue"
+                      }
+                    }
+                  }
+                },
+                "outputs" : {
+                  "kind" : "LIST",
+                  "display" : "Outputs",
+                  "description" : "Outputs",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Output",
+                    "description" : "Output",
+                    "properties" : {
+                      "atype" : {
+                        "type" : "String",
+                        "display" : "Output Type",
+                        "description" : "Type of this Output"
+                      },
+                      "messages-sent" : {
+                        "type" : "Integer",
+                        "display" : "Messages sent",
+                        "description" : "Number of Messages sent to this Output",
+                        "defaultValue" : "0"
+                      }
+                    }
+                  },
+                  "dynamicProperties" : [ "messages-sent" ]
+                }
+              }
+            },
+            "dynamicProperties" : [ "stream-last-onmessage-time", "stream-processing-rate" ]
+          }
+        }
+      },
+      "sys$threadpool" : {
+        "kind" : "ENTITY",
+        "display" : "Threadpool Swiftlet",
+        "description" : "Threadpool Swiftlet",
+        "properties" : {
+          "collect-interval" : {
+            "type" : "Long",
+            "display" : "Collect Interval",
+            "description" : "Interval for collecting the Thread Counts",
+            "defaultValue" : "1000"
+          },
+          "group-shutdown-order" : {
+            "type" : "String",
+            "display" : "Shutdown Order",
+            "description" : "The order in which the groups are being shut down",
+            "rebootRequired" : true
+          }
+        },
+        "entities" : {
+          "adhocplatform" : {
+            "kind" : "ENTITY",
+            "display" : "Ad Hoc Platform",
+            "description" : "Configures the Ad Hoc Platform Thread Factory",
+            "properties" : {
+              "core-pool-size" : {
+                "type" : "Integer",
+                "display" : "Core Pool Size",
+                "description" : "Minimum number of threads to keep in the pool",
+                "defaultValue" : "0",
+                "min" : "0"
+              },
+              "max-pool-size" : {
+                "type" : "Integer",
+                "display" : "Max Pool Size",
+                "description" : "Maximum number of threads in the pool",
+                "defaultValue" : "30",
+                "min" : "20"
+              },
+              "keepalive" : {
+                "type" : "Long",
+                "display" : "Keepalive Time (ms)",
+                "description" : "Keep alive time for idle threads in milliseconds",
+                "defaultValue" : "1000",
+                "min" : "1000"
+              }
+            }
+          }
+        },
+        "lists" : {
+          "groups" : {
+            "kind" : "LIST",
+            "display" : "Groups",
+            "description" : "Event Loop Groups",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Group",
+              "description" : "Event Loop Group Definition",
+              "properties" : {
+                "freezable" : {
+                  "type" : "Boolean",
+                  "display" : "Freezable",
+                  "description" : "If true, the groups event loops can be frozen for HA",
+                  "defaultValue" : "true",
+                  "readOnly" : true
+                }
+              },
+              "lists" : {
+                "eventloops" : {
+                  "kind" : "LIST",
+                  "display" : "Event Loops",
+                  "description" : "Event Loop Assignments",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Event Loop",
+                    "description" : "Name of the Event Loop",
+                    "properties" : {
+                      "virtual" : {
+                        "type" : "Boolean",
+                        "display" : "Virtual",
+                        "description" : "Uses a Virtual Threads for this Event Loop, otherwise a Platform Thread",
+                        "defaultValue" : "true",
+                        "readOnly" : true
+                      },
+                      "bulk-mode" : {
+                        "type" : "Boolean",
+                        "display" : "Bulk Mode",
+                        "description" : "Consumes all available events or a single event in one iteration",
+                        "defaultValue" : "false",
+                        "readOnly" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "usage" : {
+            "kind" : "LIST",
+            "display" : "Usage",
+            "description" : "Thread Usage",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Threads",
+              "description" : "Active Threads",
+              "properties" : {
+                "platform" : {
+                  "type" : "Integer",
+                  "display" : "Platform Event Loops",
+                  "description" : "Active Platform Event Loop Threads",
+                  "defaultValue" : "0"
+                },
+                "virtual" : {
+                  "type" : "Integer",
+                  "display" : "Virtual Event Loops",
+                  "description" : "Active Virtual Event Loop Threads",
+                  "defaultValue" : "0"
+                },
+                "adhocvirtual" : {
+                  "type" : "Integer",
+                  "display" : "Ad Hoc Virtual",
+                  "description" : "Active Virtual Ad Hoc Threads",
+                  "defaultValue" : "0"
+                },
+                "adhocplatform" : {
+                  "type" : "Integer",
+                  "display" : "Ad Hoc Platform",
+                  "description" : "Active Platform Ad Hoc Threads",
+                  "defaultValue" : "0"
+                }
+              }
+            },
+            "dynamicProperties" : [ "platform", "virtual", "adhoc" ]
+          }
+        }
+      },
+      "sys$topicmanager" : {
+        "kind" : "ENTITY",
+        "display" : "Topic Manager Swiftlet",
+        "description" : "Topic Manager",
+        "properties" : {
+          "flowcontrol-enabled" : {
+            "type" : "Boolean",
+            "display" : "Publish/Subscribe Flow Control",
+            "description" : "Enable/Disable Publish/Subscribe Flow Control",
+            "defaultValue" : "true"
+          },
+          "direct-subscriber-selection" : {
+            "type" : "Boolean",
+            "display" : "Direct Subscriber Selection",
+            "description" : "Select Subscribers directly and do NOT interpret the Publisher's Topic Name as SQL-Like Predicate",
+            "defaultValue" : "true"
+          }
+        },
+        "entities" : {
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Active Topics",
+            "lists" : {
+              "durables" : {
+                "kind" : "LIST",
+                "display" : "Active Durable Topic Subscriber",
+                "description" : "Active Durable Topic Subscriber",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Active Durable Topic Subscriber",
+                  "description" : "Active Durable Topic Subscriber",
+                  "properties" : {
+                    "durablename" : {
+                      "type" : "String",
+                      "display" : "Durable Name",
+                      "description" : "Name of the durable Subscriber",
+                      "mandatory" : true
+                    },
+                    "clientid" : {
+                      "type" : "String",
+                      "display" : "Client Id",
+                      "description" : "Client Id",
+                      "mandatory" : true
+                    },
+                    "topic" : {
+                      "type" : "String",
+                      "display" : "Topic Name",
+                      "description" : "Topic Name",
+                      "mandatory" : true
+                    },
+                    "selector" : {
+                      "type" : "String",
+                      "display" : "Message Selector",
+                      "description" : "Message Selector"
+                    },
+                    "nolocal" : {
+                      "type" : "Boolean",
+                      "display" : "No Local",
+                      "description" : "Receives no local published Messages",
+                      "defaultValue" : "false"
+                    },
+                    "boundto" : {
+                      "type" : "String",
+                      "display" : "Bound To",
+                      "description" : "Is bound to Queue",
+                      "defaultValue" : "Do not specify - will be set from SwiftMQ!"
+                    }
+                  }
+                }
+              },
+              "subscriber" : {
+                "kind" : "LIST",
+                "display" : "Active Topic Subscriber",
+                "description" : "Active Topic Subscriber",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "An Active Topic Subscriber",
+                  "description" : "An Active Topic Subscriber",
+                  "properties" : {
+                    "clientid" : {
+                      "type" : "String",
+                      "display" : "Client Id",
+                      "description" : "Client Id"
+                    },
+                    "topic" : {
+                      "type" : "String",
+                      "display" : "Topic Name",
+                      "description" : "Topic Name"
+                    },
+                    "selector" : {
+                      "type" : "String",
+                      "display" : "Message Selector",
+                      "description" : "Message Selector"
+                    },
+                    "nolocal" : {
+                      "type" : "Boolean",
+                      "display" : "No Local",
+                      "description" : "Receives no local published Messages",
+                      "defaultValue" : "false"
+                    },
+                    "boundto" : {
+                      "type" : "String",
+                      "display" : "Bound To",
+                      "description" : "Is bound to Queue"
+                    }
+                  }
+                }
+              },
+              "subscriber-remote" : {
+                "kind" : "LIST",
+                "display" : "Remote Router Subscriptions",
+                "description" : "Subscriptions from remote Routers",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Remote Router",
+                  "description" : "Remote Router",
+                  "lists" : {
+                    "topics" : {
+                      "kind" : "LIST",
+                      "display" : "Topic Subscriptions",
+                      "description" : "Subscriptions from this Router",
+                      "template" : {
+                        "kind" : "ENTITY",
+                        "display" : "Topic",
+                        "description" : "Topic"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lists" : {
+          "topics" : {
+            "kind" : "LIST",
+            "display" : "Topics",
+            "description" : "Topic Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Topic",
+              "description" : "Topic Definition"
+            }
+          },
+          "announce-filters" : {
+            "kind" : "LIST",
+            "display" : "Announce Filters",
+            "description" : "Topic Announce Filters",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Router Name Filter",
+              "description" : "Router Name (SQL-LIKE predicate)",
+              "properties" : {
+                "routername" : {
+                  "type" : "String",
+                  "display" : "Router Name Predicate",
+                  "description" : "SQL LIKE Predicate to match router names",
+                  "mandatory" : true
+                },
+                "filter-type" : {
+                  "type" : "String",
+                  "display" : "Filter Type",
+                  "description" : "Filter Type",
+                  "defaultValue" : "exclude",
+                  "choices" : [ "include", "exclude" ]
+                }
+              },
+              "lists" : {
+                "topic-filters" : {
+                  "kind" : "LIST",
+                  "display" : "Topic Filters",
+                  "description" : "Topic Filters",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Topic Name Filter",
+                    "description" : "Topic Name (SQL-LIKE predicate)"
+                  }
+                }
+              }
+            }
+          },
+          "slow-subscriber-conditions" : {
+            "kind" : "LIST",
+            "display" : "Slow Subscriber Conditions",
+            "description" : "Slow Subscriber Conditions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Root Topic",
+              "description" : "Root Topic",
+              "properties" : {
+                "max-messages" : {
+                  "type" : "Long",
+                  "display" : "Maximum Messages",
+                  "description" : "Maximum Messages in Subscriber Queue",
+                  "defaultValue" : "500",
+                  "min" : "1",
+                  "mandatory" : true
+                },
+                "persistence-mode" : {
+                  "type" : "String",
+                  "display" : "Persistence Mode",
+                  "description" : "Persistence Mode",
+                  "defaultValue" : "non_persistent",
+                  "choices" : [ "all", "non_persistent", "persistent" ]
+                },
+                "subscription-type" : {
+                  "type" : "String",
+                  "display" : "Subscription Type",
+                  "description" : "Subscription Type",
+                  "defaultValue" : "all",
+                  "choices" : [ "all", "local", "remote" ]
+                },
+                "disconnect-non-durable-subscriber" : {
+                  "type" : "Boolean",
+                  "display" : "Disconnect Non-Durable Subscriber",
+                  "description" : "Disconnect Non-Durable Subscriber",
+                  "defaultValue" : "false"
+                },
+                "disconnect-delete-durable-subscriber" : {
+                  "type" : "Boolean",
+                  "display" : "Disconnect and Delete Durable Subscriber",
+                  "description" : "Disconnect and Delete Durable Subscriber",
+                  "defaultValue" : "false"
+                }
+              }
+            }
+          },
+          "static-remote-router-subscriptions" : {
+            "kind" : "LIST",
+            "display" : "Static Remote Router Subscriptions",
+            "description" : "Static Remote Router Subscriptions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Static Remote Router Subscription",
+              "description" : "Specify the Router Name here",
+              "lists" : {
+                "static-topic-subscriptions" : {
+                  "kind" : "LIST",
+                  "display" : "Static Topic Subscriptions",
+                  "description" : "Static Topic Subscriptions",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Static Topic Subscription",
+                    "description" : "Specify the Root Node of the hierarchical Topic Name here",
+                    "properties" : {
+                      "keep-on-unsubscribe" : {
+                        "type" : "Boolean",
+                        "display" : "Keep on Unsubscribe",
+                        "description" : "Keep this Subscription even when the remote Router unsubscribes it",
+                        "defaultValue" : "false",
+                        "readOnly" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$trace" : {
+        "kind" : "ENTITY",
+        "display" : "Trace Swiftlet",
+        "description" : "Trace Swiftlet",
+        "properties" : {
+          "max-file-size" : {
+            "type" : "Integer",
+            "display" : "Max. Tracefile Size (KB)",
+            "description" : "Max. Tracefile Size (KB)",
+            "defaultValue" : "10240"
+          },
+          "number-old-tracefile-generations" : {
+            "type" : "Integer",
+            "display" : "Number old Tracefile Generations",
+            "description" : "Number old Tracefile Generations to keep",
+            "defaultValue" : "50"
+          }
+        },
+        "lists" : {
+          "spaces" : {
+            "kind" : "LIST",
+            "display" : "Spaces",
+            "description" : "Trace Space Definitions",
+            "template" : {
+              "kind" : "ENTITY",
+              "display" : "Space",
+              "description" : "Trace Space Definition",
+              "properties" : {
+                "enabled" : {
+                  "type" : "Boolean",
+                  "display" : "Space Enabled",
+                  "description" : "Enables/Disables the Space",
+                  "defaultValue" : "false"
+                }
+              },
+              "lists" : {
+                "predicates" : {
+                  "kind" : "LIST",
+                  "display" : "Predicates",
+                  "description" : "Predicate Definitions",
+                  "template" : {
+                    "kind" : "ENTITY",
+                    "display" : "Predicate",
+                    "description" : "Predicate Definition",
+                    "properties" : {
+                      "enabled" : {
+                        "type" : "Boolean",
+                        "display" : "Enabled",
+                        "description" : "Enables/Disables this Predicate",
+                        "defaultValue" : "true"
+                      },
+                      "filename" : {
+                        "type" : "String",
+                        "display" : "Output Filename",
+                        "description" : "Output Filename",
+                        "mandatory" : true
+                      },
+                      "value" : {
+                        "type" : "String",
+                        "display" : "Predicate Value",
+                        "description" : "SQL-Like Predicate that selects from the Trace Stream",
+                        "mandatory" : true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "sys$xa" : {
+        "kind" : "ENTITY",
+        "display" : "XA Resource Manager Swiftlet",
+        "description" : "XA Resource Manager Swiftlet",
+        "properties" : {
+          "scan-interval" : {
+            "type" : "Long",
+            "display" : "Scan Interval (ms)",
+            "description" : "Interval to scan prepared XA transaction to put into the Usage List",
+            "defaultValue" : "20000",
+            "min" : "500"
+          },
+          "default-transaction-timeout" : {
+            "type" : "Long",
+            "display" : "Default Transaction Timeout (ms)",
+            "description" : "Max. time a XA transaction can run, thereafter it will be rolled back",
+            "defaultValue" : "0",
+            "min" : "0"
+          }
+        },
+        "entities" : {
+          "usage" : {
+            "kind" : "ENTITY",
+            "display" : "Usage",
+            "description" : "Usage",
+            "lists" : {
+              "prepared-tx" : {
+                "kind" : "LIST",
+                "display" : "Prepared XA Transactions",
+                "description" : "Prepared XA Transactions",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Prepared XA Transaction",
+                  "description" : "Prepared XA Transaction",
+                  "properties" : {
+                    "xid" : {
+                      "type" : "String",
+                      "display" : "Xid",
+                      "description" : "Xid (Internal Representation)",
+                      "readOnly" : true
+                    }
+                  }
+                }
+              },
+              "heuristic-tx" : {
+                "kind" : "LIST",
+                "display" : "Heuristically completed XA Transactions",
+                "description" : "Heuristically completed XA Transactions",
+                "template" : {
+                  "kind" : "ENTITY",
+                  "display" : "Heuristically completed XA Transaction",
+                  "description" : "Heuristically completed XA Transaction",
+                  "properties" : {
+                    "xid" : {
+                      "type" : "String",
+                      "display" : "Xid",
+                      "description" : "Xid (Internal Representation)",
+                      "readOnly" : true
+                    },
+                    "operation" : {
+                      "type" : "String",
+                      "display" : "Operation",
+                      "description" : "Operation",
+                      "choices" : [ "COMMIT", "ROLLBACK" ],
+                      "readOnly" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

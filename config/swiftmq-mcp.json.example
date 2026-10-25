@@ -1,0 +1,8 @@
+{
+  "url": "smqp://localhost:4001/timeout=10000",
+  "user": "admin",
+  "passwordFile": "/path/to/swiftmq-password.txt",
+  "connectionFactory": "ConnectionFactory",
+  "limits": { "maxListItems": 500, "requestTimeoutMs": 15000 },
+  "deniedContexts": []
+}

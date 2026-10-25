@@ -1,2 +1,306 @@
 # swiftmq-mcp-server
-SwiftMQ MCP Server
+
+A local, **read-only** [MCP](https://modelcontextprotocol.io) server for [SwiftMQ](https://www.swiftmq.com) router networks.
+You start it on your own machine from an AI client (Claude, ChatGPT/Codex, GitHub Copilot, …). It connects with **your
+SwiftMQ credentials** via the CLI Admin API to a router, and from there it sees every router in that router network.
+
+- Read-only: nothing can be created, changed or deleted, and message contents are not accessible.
+- `sys$authentication`, `sys$mgmt` and `sys$timer` are never accessed. Passwords in the management tree are redacted.
+- Transport: stdio (the client starts the server as a child process).
+- Supported: SwiftMQ **13.x Community Edition (CE)**.
+
+> **Status: early development.** The server starts, handles the MCP handshake and loads its settings, but it
+> **does not offer any tools yet**, so clients show it as connected with 0 tools. The SwiftMQ tools (queues, topics,
+> routing, network, memory) are being built next. See [`tasks/todo.md`](tasks/todo.md).
+
+## Requirements
+
+- Java **21+**
+- A SwiftMQ 13.x router reachable from your machine (default `smqp://host:4001`)
+- A SwiftMQ user. The server only reads, but the user needs admin access to the management tree. Once connected,
+  the server can reach every router connected to that router; no per-router credentials are needed.
+
+## Build
+
+```bash
+mvn package
+# → target/swiftmq-mcp-server.jar  (single executable jar)
+```
+
+## Settings
+
+Settings come from command line arguments, then environment variables, then an optional JSON config file.
+
+| Setting | Argument | Environment | Default |
+|---|---|---|---|
+| Router URL | `--url` | `SWIFTMQ_URL` | — (required) |
+| User | `--user` | `SWIFTMQ_USER` | — (required) |
+| Password | `--password-file <file>` | `SWIFTMQ_PASSWORD` | none |
+| JNDI connection factory | `--connection-factory` | `SWIFTMQ_CONNECTION_FACTORY` | `ConnectionFactory` |
+| Config file | `--config <file>` | — | none |
+| Log file | `--log <file>` | — | `~/.swiftmq-mcp/logs/server.log` |
+
+The password is never accepted as an argument (it would be visible in the process list), never in the config file,
+and never inside the URL. Use `SWIFTMQ_PASSWORD` or `--password-file`:
+
+```bash
+# one command: the variable is passed to java
+SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+
+# or export it first
+export SWIFTMQ_PASSWORD=secret
+java -jar target/swiftmq-mcp-server.jar --config config/swiftmq-mcp.json
+```
+
+`SWIFTMQ_PASSWORD=secret && java …` does **not** work: it sets a shell variable that isn't passed on to `java`.
+
+URL options follow SwiftMQ's syntax, without `?`: `smqp://localhost:4001/timeout=10000;reconnect=true`.
+
+Routers don't have to be configured. The server learns which routers in the network are available, and when they
+become unavailable, from the connected router.
+
+Optional config file. Copy `config/swiftmq-mcp.json.example` to `config/swiftmq-mcp.json` (not versioned) and pass
+`--config config/swiftmq-mcp.json`:
+
+```json
+{
+  "url": "smqp://prod-router:4001/timeout=10000",
+  "user": "analyst",
+  "passwordFile": "/Users/me/.swiftmq-mcp/prod.pw",
+  "limits": { "maxListItems": 500, "requestTimeoutMs": 15000 },
+  "deniedContexts": ["sys$streams"]
+}
+```
+
+`deniedContexts` can only add to the built-in denylist.
+
+## Quick test without an AI client
+
+```bash
+( printf '%s\n' \
+    '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}' \
+    '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+    '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+  sleep 2 ) \
+  | SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+```
+
+stdout shows two JSON-RPC responses (server info, tool list). Logs go to stderr and the log file.
+
+The `sleep` keeps stdin open until the answers are written. Per the MCP spec, closing stdin ends the session, so
+requests that are still unanswered at that moment get no response. Real clients keep stdin open for the whole session.
+
+Interactive alternative: the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) (needs Node.js):
+
+```bash
+npx @modelcontextprotocol/inspector -e SWIFTMQ_PASSWORD=secret \
+  java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+```
+
+## Integration
+
+Every client gets the same command:
+
+```
+java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+```
+
+The password goes in the environment variable `SWIFTMQ_PASSWORD`. The snippets use `/path/to/swiftmq-mcp-server.jar`;
+use the absolute path of your jar. On Windows write paths as `C:\\path\\to\\swiftmq-mcp-server.jar` in JSON.
+
+For several routers or networks, add one entry per network with different names (`swiftmq-prod`, `swiftmq-test`, …).
+
+### Overview
+
+| Client | Local (stdio) server | How |
+|---|---|---|
+| Claude Desktop | ✅ | `claude_desktop_config.json` |
+| Claude Code | ✅ | `claude mcp add` or `.mcp.json` |
+| ChatGPT desktop app (Codex), Codex CLI / IDE extension | ✅ | `~/.codex/config.toml` |
+| ChatGPT web (connectors / developer mode) | ❌ remote only | see [ChatGPT web](#chatgpt-web) |
+| GitHub Copilot in VS Code (agent mode) | ✅ | `.vscode/mcp.json` |
+| GitHub Copilot CLI | ✅ | `~/.copilot/mcp-config.json` |
+| Microsoft 365 Copilot / Copilot Studio | ❌ remote only | see [Microsoft 365 Copilot](#microsoft-365-copilot--copilot-studio) |
+| Windows On-device Agent Registry | ⚠️ preview | see [Windows](#windows-on-device-agent-registry-preview) |
+
+### Claude Desktop
+
+Open **Settings → Developer → Edit Config**, or edit the file directly:
+
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "swiftmq": {
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:4001", "--user", "admin"],
+      "env": { "SWIFTMQ_PASSWORD": "secret" }
+    }
+  }
+}
+```
+
+Quit Claude Desktop completely and start it again. The server then appears under the tools/connectors menu.
+
+- Claude Desktop doesn't expand variables in this file, so the password is stored there in plain text. To keep it out
+  of the file, use `--password-file` instead of `env`.
+- GUI apps on macOS often don't see the `java` from your shell `PATH`. If the server doesn't start, use the absolute
+  path, e.g. the output of `/usr/libexec/java_home -v 21` followed by `/bin/java`.
+- Client log: `~/Library/Logs/Claude/mcp-server-swiftmq.log` (macOS), `%APPDATA%\Claude\logs` (Windows).
+
+Docs: https://modelcontextprotocol.io/docs/develop/connect-local-servers
+
+### Claude Code
+
+```bash
+claude mcp add --transport stdio --scope user -e SWIFTMQ_PASSWORD=secret swiftmq -- \
+  java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+```
+
+- `--scope`: `local` (default: this project, only you), `project` (writes `.mcp.json` for the team) or `user` (all
+  your projects).
+- All options go before `--`. Don't put the server name directly after `-e KEY=VALUE`, or it is read as another
+  variable.
+- Check with `claude mcp list`, or with `/mcp` inside Claude Code.
+
+For a shared project `.mcp.json` without a secret in it, Claude Code expands `${VAR}` from your environment:
+
+```json
+{
+  "mcpServers": {
+    "swiftmq": {
+      "type": "stdio",
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:4001", "--user", "admin"],
+      "env": { "SWIFTMQ_PASSWORD": "${SWIFTMQ_PASSWORD}" }
+    }
+  }
+}
+```
+
+Docs: https://code.claude.com/docs/en/mcp
+
+### ChatGPT desktop app / Codex CLI / Codex IDE extension
+
+These share one config file: `~/.codex/config.toml` (macOS/Linux) or `%USERPROFILE%\.codex\config.toml` (Windows).
+
+```toml
+[mcp_servers.swiftmq]
+command = "java"
+args = ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:4001", "--user", "admin"]
+env_vars = ["SWIFTMQ_PASSWORD"]   # passed through from the environment Codex was started in
+```
+
+Codex starts servers with a clean environment, so `SWIFTMQ_PASSWORD` must be listed in `env_vars`. Alternatively,
+set it literally:
+
+```toml
+[mcp_servers.swiftmq.env]
+SWIFTMQ_PASSWORD = "secret"
+```
+
+Or from the command line:
+
+```bash
+codex mcp add swiftmq --env SWIFTMQ_PASSWORD=secret -- \
+  java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
+```
+
+Docs: https://learn.chatgpt.com/docs/extend/mcp, https://developers.openai.com/codex/config-reference
+
+### ChatGPT web
+
+ChatGPT on the web (Settings → Apps/Connectors → Advanced → Developer mode) only accepts **remote** MCP servers over
+HTTPS, not local ones. Options:
+
+- Use the ChatGPT desktop app / Codex as shown above.
+- OpenAI's [Secure MCP Tunnel](https://github.com/openai/tunnel-client) can run a local stdio server
+  (`--mcp-command "java -jar …"`) and relay it to ChatGPT. Not tested with this server yet.
+- A remote mode for this server is planned as an optional later step.
+
+### GitHub Copilot in VS Code (agent mode)
+
+Create `.vscode/mcp.json` in the workspace, or use **MCP: Open User Configuration** for all workspaces. VS Code asks
+for the password once and stores it securely:
+
+```json
+{
+  "inputs": [
+    { "type": "promptString", "id": "swiftmq-password", "description": "SwiftMQ password", "password": true }
+  ],
+  "servers": {
+    "swiftmq": {
+      "type": "stdio",
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:4001", "--user", "admin"],
+      "env": { "SWIFTMQ_PASSWORD": "${input:swiftmq-password}" }
+    }
+  }
+}
+```
+
+Start the server from the `mcp.json` editor (Start), then pick its tools in the Copilot Chat tool picker (agent mode).
+
+Docs: https://code.visualstudio.com/docs/copilot/customization/mcp-servers
+
+### GitHub Copilot CLI
+
+`~/.copilot/mcp-config.json`:
+
+```json
+{
+  "mcpServers": {
+    "swiftmq": {
+      "type": "local",
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:4001", "--user", "admin"],
+      "env": { "SWIFTMQ_PASSWORD": "secret" },
+      "tools": ["*"]
+    }
+  }
+}
+```
+
+Or use `/mcp add` inside the CLI. `${VAR}` expansion in `env` has been unreliable in some versions, so use a literal
+value or `--password-file` if it doesn't work.
+
+Docs: https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers
+
+### Microsoft 365 Copilot / Copilot Studio
+
+These only connect to **remote** MCP servers (Streamable HTTP URL), so they can't use this server in its current
+local form. They become possible with the planned remote mode.
+
+Docs: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp
+
+### Windows On-device Agent Registry (preview)
+
+Windows Insider builds (26220.7262+) have an on-device MCP registry (`odr.exe`). It registers local servers from an
+MCPB `manifest.json`. An MCPB bundle for this server isn't provided yet; it would also give Claude Desktop a one-click
+install with a secure password prompt.
+
+Docs: https://learn.microsoft.com/en-us/windows/ai/mcp/overview
+
+## Troubleshooting
+
+- **Server doesn't start / 0 tools:** 0 tools is expected at the current stage. If it doesn't start, check the
+  client's MCP log and the server log `~/.swiftmq-mcp/logs/server.log`. Invalid settings are reported on stderr
+  together with the usage text.
+- **`java` not found:** use the absolute path to a Java 21+ `java` binary as `command`.
+- **Nothing on stdout but errors in the client:** the server writes only JSON-RPC to stdout and everything else to
+  stderr/log. Don't wrap it in scripts that print to stdout.
+
+## Development
+
+```bash
+mvn test                           # unit + stdio process tests
+mvn -Pgen-catalog process-classes  # regenerate the property catalog from ./swiftmq (local CE distribution)
+```
+
+Plan and progress: [`tasks/todo.md`](tasks/todo.md).
+
+## License
+
+Apache License 2.0, see [LICENSE](LICENSE).

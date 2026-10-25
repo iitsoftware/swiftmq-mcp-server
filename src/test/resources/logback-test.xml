@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tests log to stderr only. Child processes in StdioProcessTest use the production logback.xml and their own log file. -->
+<configuration>
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="io.modelcontextprotocol" level="WARN"/>
+    <logger name="reactor" level="WARN"/>
+    <root level="INFO">
+        <appender-ref ref="STDERR"/>
+    </root>
+</configuration>
