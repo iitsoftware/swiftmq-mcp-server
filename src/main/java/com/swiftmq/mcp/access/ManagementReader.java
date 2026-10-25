@@ -42,7 +42,8 @@ public final class ManagementReader {
                 boolean secret = (def != null && def.secret()) || Secrets.isSecret(name);
                 properties.put(name, secret ? redact(raw) : ValueConverter.convert(name, def, raw));
             });
-            List<String> children = snapshot.entities();
+            // ".metadata" is an empty internal entity in every swiftlet
+            List<String> children = snapshot.entities().stream().filter(c -> !c.equals(".metadata")).toList();
             boolean truncated = children.size() > maxListItems;
             return new EntityView(router, path.toString(), node == null ? null : node.kind(), properties,
                     truncated ? children.subList(0, maxListItems) : children, children.size(), truncated);

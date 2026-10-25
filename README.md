@@ -9,22 +9,34 @@ SwiftMQ credentials** via the CLI Admin API to a router, and from there it sees 
 - Transport: stdio (the client starts the server as a child process).
 - Supported: SwiftMQ **13.x Community Edition (CE)**.
 
-> **Status: early development.** The first tools work (queues, topics, routers, memory). More are being built:
-> durable subscribers, routing, network connections, health overview and generic browsing. See
-> [`tasks/todo.md`](tasks/todo.md).
+> **Status: early development.** All planned read-only tools are available; see [`tasks/todo.md`](tasks/todo.md)
+> for what's next.
 
 ## Tools
 
-| Tool | What it shows |
-|---|---|
-| `connection_info` | Connection URL, user, state (incl. last error), available routers, selected router |
-| `list_routers` | Routers currently available in the router network |
-| `select_router` | Sets the default router for the following calls |
-| `list_queues` | Active queues with messagecount, produce/consume rates, totals, latency; sorted by messagecount; glob filter |
-| `get_queue` | One queue: usage, configuration (regular/clustered/composite incl. bindings), receivers/senders/browsers |
-| `list_topics` | Topics with active and durable subscriber counts |
-| `get_router_memory` | Free/total/used memory of one router, or of all routers |
-| `get_router_info` | Release, OS, startup time, smart tree setting, memory, available swiftlets |
+| Area | Tool | What it shows |
+|---|---|---|
+| Connection | `connection_info` | Connection URL, user, state (incl. last error), available routers, selected router |
+| | `list_routers` | Routers currently available in the router network |
+| | `select_router` | Sets the default router for the following calls |
+| Queues | `list_queues` | Active queues with messagecount, rates, totals, latency, and `delta` since the previous call; glob filter |
+| | `find_queue` | Searches all routers for queues matching a pattern |
+| | `get_queue` | One queue: usage, configuration (regular/clustered/composite incl. bindings), receivers/senders/browsers |
+| Topics | `list_topics` | Topics with active and durable subscriber counts |
+| | `get_topic` | One topic: subscribers and durable subscribers with backlog |
+| | `list_durable_subscribers` | Durable subscribers with backlog (messages waiting), largest first |
+| Routing | `list_routing_connections` | Active router-to-router connections |
+| | `get_routing_table` | Destinations and dynamic routes |
+| | `get_routing_config` | Listeners, connectors, static routes, filters (passwords redacted) |
+| | `network_topology` | Graph of the whole network, plus issues (connector without connection, one-way links, unavailable routers) |
+| Network | `list_network_connections` | All connections with owning swiftlet and throughput |
+| | `network_summary` | Connections and throughput per swiftlet |
+| Router | `get_router_memory` | Free/total/used memory of one router, or of all routers |
+| | `get_router_info` | Release, OS, startup time, smart tree setting, memory, available swiftlets |
+| Overview | `network_health` | Dead letter queue, unroutable, store-and-forward backlogs, fullest queues, memory, routing issues |
+| Browse | `list_swiftlets` | Available management areas of a router |
+| | `browse_context` | Any context of the management tree (properties + children), for everything without a dedicated tool |
+| | `change_context` | Sets the current context for `browse_context` (like `cc`, with relative paths and `..`) |
 
 Every tool takes an optional `router`. Without it, the tool uses the selected router, or the only available one.
 All tools are marked read-only.

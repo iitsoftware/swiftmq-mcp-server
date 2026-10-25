@@ -30,12 +30,18 @@ final class QueueTools {
                         "Lists the active queues of a router with live counters: messagecount, produce/consume rates (msgs/s), "
                                 + "total produced/consumed, latency (ms) and whether delivery is active. Sorted by messagecount (largest first) "
                                 + "by default. Temporary queues (tmp$...) are left out unless include_temporary is true. "
-                                + "Includes system queues such as routerdlq (dead letter queue) and unroutable.",
+                                + "Includes system queues such as routerdlq (dead letter queue) and unroutable. "
+                                + "'delta' is the change of messagecount since the previous list_queues call for that router.",
                         schema("\"pattern\":{\"type\":\"string\",\"description\":\"Glob filter on the queue name, e.g. 'order*'. Case-insensitive.\"}",
                                 "\"include_temporary\":{\"type\":\"boolean\",\"description\":\"Include temporary queues (tmp$...). Default false.\"}",
                                 "\"sort\":{\"type\":\"string\",\"enum\":[\"messagecount\",\"name\"],\"description\":\"Default messagecount.\"}",
                                 "\"limit\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Max. queues returned, default 100.\"}"),
                         args -> listQueues(ctx, args)),
+                tool("find_queue", "Find queue",
+                        "Searches all available routers for queues whose name matches a glob pattern and returns router, "
+                                + "queue and messagecount. Useful to locate a queue in a router network.",
+                        "{\"type\":\"object\",\"properties\":{\"pattern\":{\"type\":\"string\",\"description\":\"Glob, e.g. 'orders*'. Case-insensitive.\"}},\"required\":[\"pattern\"]}",
+                        args -> findQueue(ctx, args)),
                 tool("get_queue", "Get queue",
                         "Shows one queue: live usage counters, its configuration (regular, clustered or composite, incl. bindings), "
                                 + "and the active receivers, senders and browsers (user, client id, selector). "
@@ -67,6 +73,20 @@ final class QueueTools {
                 queues.add(row);
             });
         }
+        Map<String, Long> counts = new HashMap<>();
+        for (Map<String, Object> q : queues)
+            if (q.get("messagecount") instanceof Number n)
+                counts.put(q.get("name").toString(), n.longValue());
+        if (args.optString("pattern") == null && !includeTemporary) {
+            // only full listings update the baseline, so filtered calls don't distort the next delta
+            Map<String, Long> previous = ctx.swapBaseline(router, counts);
+            for (Map<String, Object> q : queues) {
+                Long before = previous.get(q.get("name").toString());
+                Long now = counts.get(q.get("name").toString());
+                if (before != null && now != null)
+                    q.put("delta", now - before);
+            }
+        }
         Comparator<Map<String, Object>> byName = Comparator.comparing(q -> q.get("name").toString());
         queues.sort(sort.equals("name") ? byName
                 : Comparator.<Map<String, Object>>comparingLong(q -> q.get("messagecount") instanceof Number n ? n.longValue() : -1).reversed().thenComparing(byName));
@@ -79,6 +99,36 @@ final class QueueTools {
         if (usage.truncated() || queues.size() > limit)
             r.put("truncated", true);
         r.put("queues", queues.subList(0, Math.min(limit, queues.size())));
+        return r;
+    }
+
+    static Map<String, Object> findQueue(ToolContext ctx, Args args) {
+        Predicate<String> match = ToolContext.glob(args.string("pattern"));
+        List<Map<String, Object>> found = new ArrayList<>();
+        List<Map<String, Object>> errors = new ArrayList<>();
+        for (String router : ctx.reader.gateway().availableRouters()) {
+            try {
+                Optional<EntityView> usage = ctx.read(router, USAGE);
+                if (usage.isEmpty())
+                    continue;
+                for (String name : usage.get().children())
+                    if (match.test(name)) {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("router", router);
+                        row.put("queue", name);
+                        row.put("messagecount", ctx.messageCount(router, name));
+                        found.add(row);
+                    }
+            } catch (SwiftMqAccessException e) {
+                errors.add(Map.of("router", router, "error", e.getMessage()));
+            }
+        }
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("found", found.size() > ctx.maxListItems ? found.subList(0, ctx.maxListItems) : found);
+        if (found.size() > ctx.maxListItems)
+            r.put("truncated", true);
+        if (!errors.isEmpty())
+            r.put("errors", errors);
         return r;
     }
 

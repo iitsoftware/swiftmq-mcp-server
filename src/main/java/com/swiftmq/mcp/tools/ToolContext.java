@@ -29,6 +29,8 @@ public final class ToolContext {
     final int maxListItems;
     private final Clock clock;
     private final Map<String, Fact> smartTree = new ConcurrentHashMap<>();
+    /** router → queue → messagecount at the previous list_queues call, for "delta since last call". */
+    private final Map<String, Map<String, Long>> baselines = new ConcurrentHashMap<>();
 
     private record Fact(boolean value, Instant at) {
     }
@@ -81,6 +83,22 @@ public final class ToolContext {
                 result.add(row);
             });
         return result;
+    }
+
+    /**
+     * Current messagecount of a queue, or null if the queue isn't active. Accepts {@code name@router}.
+     */
+    Integer messageCount(String router, String queue) {
+        String local = queue.contains("@") ? queue.substring(0, queue.indexOf('@')) : queue;
+        return read(router, QueueTools.USAGE.child(local))
+                .map(q -> q.properties().get("messagecount") instanceof Integer i ? i : null)
+                .orElse(null);
+    }
+
+    /** Stores the counts and returns the previous ones (empty on the first call). */
+    Map<String, Long> swapBaseline(String router, Map<String, Long> counts) {
+        Map<String, Long> previous = baselines.put(router, Map.copyOf(counts));
+        return previous == null ? Map.of() : previous;
     }
 
     /**

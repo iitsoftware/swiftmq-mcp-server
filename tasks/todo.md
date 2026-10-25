@@ -395,25 +395,30 @@ Package `com.swiftmq.mcp.access`:
 - [x] Manual check: the jar connects to the local router (`available routers: [router]`) and closes on EOF. With an unreachable port it retries with backoff, and the server stays up
 - Deferred to Phase 3 (only needed by fan-out/list tools): TTL cache, pagination cursors, delta baselines, smart-tree detection cache
 
-### Phase 3 — Tools (in progress)
-Batch 1 ✅ (2026-10-25), package `com.swiftmq.mcp.tools`:
-- `ToolFactory`: JSON results, `isError` for user-facing errors, a log line per call, read-only annotations
-- `ToolContext`: router resolution, entries helper, smart-tree cache (5 min), glob
-- 8 tools: `connection_info`, `list_routers`, `select_router`, `list_queues`, `get_queue`, `list_topics`, `get_router_memory`, `get_router_info`
-- Verified via the jar against the local CE router (all 8 tools + error cases)
-- `ToolsTest` (11), 90 tests total
-
-Remaining:
-- [x] Smart-tree detection per router (cached `/.env use-smart-tree`) · [ ] TTL cache, cursors, delta baselines
-- [x] `connection_info`, `select_router` · [ ] `change_context`
-- [x] `list_routers`, `list_queues`, `get_queue` · [ ] `find_queue`
-- [x] `list_topics` · [ ] `get_topic`, `list_durable_subscribers`
-- [ ] `list_routing_connections`, `get_routing_table`, `get_routing_config`, `network_topology`
-- [ ] `list_network_connections`, `network_summary`
-- [x] `get_router_memory`, `get_router_info`
-- [ ] `network_health`, `list_swiftlets`, `browse_context`
-- [ ] Delta baselines in `list_queues` / `network_health`; pagination cursors
-- [ ] Per-call log line
+### Phase 3 — Tools ✅ (2026-10-25)
+Package `com.swiftmq.mcp.tools`:
+- `ToolFactory`: JSON results, `isError` for user-facing errors, a log line per call (tool, outcome, duration; no values), read-only annotations on every tool
+- `ToolContext`:
+  - router resolution, list entries helper, queue messagecount helper
+  - smart-tree cache (5 min)
+  - delta baselines (per router; only full `list_queues` calls update them)
+  - glob matching
+- 21 tools:
+  - connection: `connection_info`, `list_routers`, `select_router`
+  - queues: `list_queues` (incl. `delta`), `find_queue`, `get_queue`
+  - topics: `list_topics`, `get_topic`, `list_durable_subscribers` (backlog = messagecount of the `boundto` queue)
+  - router: `get_router_memory`, `get_router_info`
+  - routing: `list_routing_connections`, `get_routing_table`, `get_routing_config`, `network_topology` (issues: enabled connector without connection, one-way links, unavailable peers)
+  - network: `list_network_connections`, `network_summary`
+  - overview: `network_health` (routerdlq, unroutable, `rt$<dest>` backlogs, fullest queues, memory ≥ 90 %, topology issues)
+  - browse: `list_swiftlets`, `browse_context`, `change_context`
+- `.metadata` entities are hidden
+- Verified via the jar against the local CE router: all tools, plus denied paths via absolute, relative (`../sys$mgmt`) and `change_context`
+- Tests: `ToolsTest` (11) + `MoreToolsTest` (8) on `ToolTestBase`; 98 tests total
+- **Not done, by decision:**
+  - Pagination cursors: `limit`, filters and `maxListItems` cover it so far
+  - TTL cache: reads are fast enough on the local router; revisit with a real network if fan-out tools get slow
+- **Untested with real data** (single local router): routing connections/table/topology, `rt$` backlogs. Needs the 3-router CE chain (Phase 4)
 
 ### Phase 4 — Verification
 - [ ] Unit tests: validator (injection attempts with `;`, spaces, quotes), `CommandBuilder` emits only `sr`/`cc`, `ContextGuard`, command builder, redaction, `NavigationState`, fake gateway for each tool

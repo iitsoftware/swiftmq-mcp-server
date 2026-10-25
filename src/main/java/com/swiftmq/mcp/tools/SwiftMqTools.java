@@ -13,6 +13,10 @@ public final class SwiftMqTools {
         QueueTools.create(ctx).forEach(registry::add);
         TopicTools.create(ctx).forEach(registry::add);
         RouterTools.create(ctx).forEach(registry::add);
+        RoutingTools.create(ctx).forEach(registry::add);
+        NetworkTools.create(ctx).forEach(registry::add);
+        HealthTools.create(ctx).forEach(registry::add);
+        BrowseTools.create(ctx).forEach(registry::add);
         return registry;
     }
 }
