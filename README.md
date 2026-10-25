@@ -187,7 +187,52 @@ java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user adm
 The password goes in the environment variable `SWIFTMQ_PASSWORD`. The snippets use `/path/to/swiftmq-mcp-server.jar`;
 use the absolute path of your jar. On Windows write paths as `C:\\path\\to\\swiftmq-mcp-server.jar` in JSON.
 
-For several routers or networks, add one entry per network with different names (`swiftmq-prod`, `swiftmq-test`, …).
+### Several networks or users
+
+**One router network needs one entry.** The server connects to one router and reaches every router of that network
+through it: use the `router` argument or `select_router`.
+
+Add **further entries** (each is its own server process with its own connection) for:
+- **separate router networks**, e.g. production and test;
+- **different users** for the same network, e.g. a read-only `mcp` user next to `admin`.
+
+Give each entry its own name. Every entry offers the same tools, so tell the client which one you mean ("in the test
+network …"), or turn off the ones you don't need (`/mcp` in Claude Code).
+
+Claude Code:
+
+```bash
+claude mcp add swiftmq-prod --transport stdio --scope user -e SWIFTMQ_PASSWORD=secret -- \
+  java -jar /path/to/swiftmq-mcp-server.jar --url smqp://prod-router:4001 --user mcp --log ~/.swiftmq-mcp/logs/prod.log
+claude mcp add swiftmq-test --transport stdio --scope user -e SWIFTMQ_PASSWORD=secret -- \
+  java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:14001 --user admin --log ~/.swiftmq-mcp/logs/test.log
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "swiftmq-prod": {
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://prod-router:4001", "--user", "mcp",
+               "--password-file", "/path/to/prod.pw", "--log", "/Users/me/.swiftmq-mcp/logs/prod.log"]
+    },
+    "swiftmq-test": {
+      "command": "java",
+      "args": ["-jar", "/path/to/swiftmq-mcp-server.jar", "--url", "smqp://localhost:14001", "--user", "admin",
+               "--log", "/Users/me/.swiftmq-mcp/logs/test.log"],
+      "env": { "SWIFTMQ_PASSWORD": "secret" }
+    }
+  }
+}
+```
+
+The same works in every other client: one entry per network or user. Each entry can also use its own config file
+(`--config prod.json`, `--config test.json`).
+
+Give each entry its own log file with `--log` (as in the examples). Otherwise all processes write to the same default
+file, `~/.swiftmq-mcp/logs/server.log`, and get in each other's way when it rotates.
 
 ### Overview
 
