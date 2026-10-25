@@ -234,14 +234,14 @@ Docs: https://modelcontextprotocol.io/docs/develop/connect-local-servers
 ### Claude Code
 
 ```bash
-claude mcp add --transport stdio --scope user -e SWIFTMQ_PASSWORD=secret swiftmq -- \
+claude mcp add swiftmq --transport stdio --scope user -e SWIFTMQ_PASSWORD=secret -- \
   java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
 ```
 
 - `--scope`: `local` (default: this project, only you), `project` (writes `.mcp.json` for the team) or `user` (all
   your projects).
-- All options go before `--`. Don't put the server name directly after `-e KEY=VALUE`, or it is read as another
-  variable.
+- Put the server name first and all options before `--`. A name directly after `-e KEY=VALUE` is read as another
+  variable ("Invalid environment variable format").
 - Check with `claude mcp list`, or with `/mcp` inside Claude Code.
 
 For a shared project `.mcp.json` without a secret in it, Claude Code expands `${VAR}` from your environment:
