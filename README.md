@@ -9,8 +9,8 @@ SwiftMQ credentials** via the CLI Admin API to a router, and from there it sees 
 - Transport: stdio (the client starts the server as a child process).
 - Supported: SwiftMQ **13.x Community Edition (CE)**.
 
-> **Status: early development.** All planned read-only tools are available; see [`tasks/todo.md`](tasks/todo.md)
-> for what's next.
+> **Status:** feature-complete for SwiftMQ 13.x CE. Tested against a single router and a 3-router network. UR/HA
+> support and an optional remote mode are possible next steps; see [`tasks/todo.md`](tasks/todo.md).
 
 ## Tools
 
@@ -48,8 +48,9 @@ All tools are marked read-only.
 
 - Java **21+**
 - A SwiftMQ 13.x router reachable from your machine (default `smqp://host:4001`)
-- A SwiftMQ user. The server only reads, but the user needs admin access to the management tree. Once connected,
-  the server can reach every router connected to that router; no per-router credentials are needed.
+- A SwiftMQ user with admin access to the management tree. Recommended: a dedicated read-only user, see
+  [Read-only SwiftMQ user](#read-only-swiftmq-user-recommended). Once connected, the server can reach every router
+  connected to that router; no per-router credentials are needed.
 
 ## Build
 
@@ -125,6 +126,55 @@ Interactive alternative: the [MCP Inspector](https://github.com/modelcontextprot
 npx @modelcontextprotocol/inspector -e SWIFTMQ_PASSWORD=secret \
   java -jar /path/to/swiftmq-mcp-server.jar --url smqp://localhost:4001 --user admin
 ```
+
+## Read-only SwiftMQ user (recommended)
+
+The server itself only ever navigates (`sr`, `cc`) and reads. It never accesses `sys$authentication`, `sys$mgmt` or
+`sys$timer`, and it redacts passwords. These checks run on your machine, though; the real security boundary is the
+router. With an admin role, the router itself enforces read-only access for the user the server connects with.
+
+This preconfig file creates the user `mcp` with a read-only role. It denies the three contexts and keeps full
+access for the existing `admin` user (tested with CE 13.2.3; also at
+[`scripts/test-network/preconfig/readonly-role.xml`](scripts/test-network/preconfig/readonly-role.xml)):
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<router>
+  <swiftlet name="sys$authentication">
+    <users>
+      <user name="mcp" password="change-me" _op="add"/>
+    </users>
+  </swiftlet>
+  <swiftlet name="sys$mgmt" admin-roles-enabled="true">
+    <roles>
+      <role name="admin" _op="add">
+        <context-filters>
+          <context-filter name="everything" type="include" cli-context-predicate="/%" granted-commands="%"/>
+        </context-filters>
+      </role>
+      <role name="mcp" _op="add">
+        <context-filters>
+          <context-filter name="all-read-only" type="include" cli-context-predicate="/%" read-only="true"/>
+          <context-filter name="no-authentication" type="exclude" cli-context-predicate="/sys$authentication%"/>
+          <context-filter name="no-mgmt" type="exclude" cli-context-predicate="/sys$mgmt%"/>
+          <context-filter name="no-timer" type="exclude" cli-context-predicate="/sys$timer%"/>
+        </context-filters>
+      </role>
+    </roles>
+  </swiftlet>
+</router>
+```
+
+Apply it at router start: `./router /path/to/readonly-role.xml` (the first argument of the start script is a
+preconfig file), or with Docker via `SWIFTMQ_PRECONFIG`.
+
+**Important:**
+- **Apply it to every router of the network.** A role applies on the router that executes the command, and the role
+  name must equal the user name.
+- **With `admin-roles-enabled="true"`, admin users without a role can't connect any admin tool anymore**
+  ("No role defined for user"). Give every existing admin user a role, like `admin` above.
+- Result (verified): `mcp` can read every router of the network. The denied contexts answer "Access to this context
+  is not granted", and changes answer "Command execution is not granted!".
 
 ## Integration
 
@@ -314,10 +364,21 @@ Docs: https://learn.microsoft.com/en-us/windows/ai/mcp/overview
 
 ## Troubleshooting
 
+Start with `connection_info`: it shows the connection state and the last error.
+
 - **Server doesn't start:** check the client's MCP log and the server log `~/.swiftmq-mcp/logs/server.log`.
   Invalid settings are reported on stderr together with the usage text.
 - **Tools report "Not connected":** call `connection_info`. It shows the state and the last connection error. The
   server keeps retrying in the background (1 s up to 30 s).
+- **`invalid password`:** the password didn't reach the server. `SWIFTMQ_PASSWORD=secret java …` passes it;
+  `SWIFTMQ_PASSWORD=secret && java …` doesn't. In client configs, put it in `env`.
+- **`no response within … ms` / stays `CONNECTING`:** the router is reachable, but the address it hands out to JMS
+  clients isn't. Typical behind NAT or Docker: set `connectaddress` / `connectport` on the router's JMS listener to
+  the address clients use (see `scripts/test-network/preconfig/routerA.xml`).
+- **`Router 'X' denies access to …`:** an admin role on that router excludes the context. That's intended for
+  sys$authentication, sys$mgmt and sys$timer; for anything else, check the role.
+- **Consumer details "not available":** the router runs with the smart management tree; set
+  `use-smart-tree="false"` on `<router>` and restart it.
 - **`java` not found:** use the absolute path to a Java 21+ `java` binary as `command`.
 - **Nothing on stdout but errors in the client:** the server writes only JSON-RPC to stdout and everything else to
   stderr/log. Don't wrap it in scripts that print to stdout.
@@ -339,6 +400,13 @@ Only routerA is reachable from the host, on `localhost:14001`; B and C are reach
 SWIFTMQ_TEST_NETWORK=true mvn test -Dtest=RouterNetworkTest   # stops and starts routerC during the test
 SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001/timeout=10000 --user admin
 (cd scripts/test-network && docker compose down -v)
+```
+
+With the read-only role from above on all three routers (user `mcp` / `mcp-secret`, `admin` keeps full access):
+
+```bash
+(cd scripts/test-network && docker compose -f docker-compose.yml -f docker-compose.readonly-role.yml up -d)
+SWIFTMQ_PASSWORD=mcp-secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001/timeout=10000 --user mcp
 ```
 
 ### Known limitation

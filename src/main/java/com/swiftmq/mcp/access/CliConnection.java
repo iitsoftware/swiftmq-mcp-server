@@ -169,7 +169,11 @@ public final class CliConnection implements SwiftMqGateway, AutoCloseable {
             try {
                 execute(c, cc);
             } catch (Exception e) {
-                log.debug("Context {} on {} not present: {}", path, router, describe(e));
+                String reason = describe(e);
+                // a router-side admin role refused the context: that's not the same as "doesn't exist"
+                if (reason.contains("not granted"))
+                    throw new SwiftMqAccessException.AccessDenied("Router '" + router + "' denies access to " + path + ": " + reason);
+                log.debug("Context {} on {} not present: {}", path, router, reason);
                 return Optional.empty();
             }
             String[] entities = c.getContextEntities();

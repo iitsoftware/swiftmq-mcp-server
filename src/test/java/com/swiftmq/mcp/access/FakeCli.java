@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** In-memory stand-in for the SwiftMQ CLI: a management tree per router, and a log of every command. */
-public final class FakeCli implements Cli {
+public class FakeCli implements Cli {
     public record Context(List<String> entities, Map<String, String> properties) {
     }
 

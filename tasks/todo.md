@@ -443,8 +443,21 @@ Package `com.swiftmq.mcp.tools`:
 - **SwiftMQ follow-up (owner: SwiftMQ):** allow `cc` into entity names that contain '/', or avoid '/' in routing connection names
 - [ ] Claude Desktop / Claude Code test with the real client (user)
 
-### Phase 5 — Packaging & docs
-- [ ] Shaded jar release, README: install, Claude Desktop / Claude Code config snippets, settings reference, SwiftMQ read-only admin-role snippet (with `exclude` filters), troubleshooting (logs, stdout, **smart tree → missing consumer/producer details**)
+### Phase 5 — Packaging & docs ✅ (2026-10-25)
+- [x] Shaded jar `target/swiftmq-mcp-server.jar` (`mvn package`); version stays `1.0-SNAPSHOT` until a release is cut
+- [x] README:
+  - status, tools table, requirements, build, settings reference (args/env/config file, password rules)
+  - quick test with `scripts/smoke-test.jsonl`
+  - integration for Claude Desktop/Code, Codex/ChatGPT, GitHub Copilot (VS Code, CLI), and the remote-only clients
+  - troubleshooting, development, test network, known limitation
+- [x] **Read-only SwiftMQ user, verified on the 3-router network** (`scripts/test-network/preconfig/readonly-role.xml`, overlay `docker-compose.readonly-role.yml`):
+  - role `mcp`: include `/%` read-only, exclude `sys$authentication%`, `sys$mgmt%`, `sys$timer%`
+  - as `mcp`: reads on all routers work; denied contexts → "Access to this context is not granted"; `set` → "Command execution is not granted!"; `sr`/`cc` need no `granted-commands`
+  - all tools work as `mcp` (19 calls across the network, 0 errors)
+  - **Pitfall documented:** with `admin-roles-enabled="true"`, admin users *without* a role can't connect ("No role defined for user: admin"). The snippet therefore includes a full-access `admin` role (verified: `set` allowed)
+  - The role must be applied on every router of the network
+- [x] Server: a context refused by a router role is reported as `Router 'X' denies access to <path>: …` (`AccessDenied`) instead of "not found"
+- [x] Final run: 105 tests green; `RouterNetworkTest` green with roles enabled
 
 ## Later: UR/HA support
 
@@ -479,4 +492,30 @@ SwiftMQ credentials become a requirement. The tool layer stays unchanged. It wou
 _(none at the moment)_
 
 ## Review
-_(to be filled after implementation)_
+
+**Result (2026-10-25):** a local, stdio-based, read-only MCP server for SwiftMQ 13.x CE, with 21 tools covering the
+Queue Manager, Topic Manager, Routing, Network, `.env` (memory) and generic browsing for every non-denied swiftlet.
+It reaches every router of the network through one connection.
+
+**What went well**
+- Verifying against the real system early (Phase 0 tests, the catalog crawl, a 3-router network) replaced
+  assumptions with facts. It also found bugs that unit tests with fakes could not: entity names containing '/',
+  a hanging connect behind a port proxy, an empty network looking healthy, connector issues masked by incoming
+  connections.
+- Layered guards: a canonical path model, a fixed denylist inside the connection, a command builder that can only
+  emit `sr`/`cc`, and redaction. The router-side admin role is the actual boundary, verified on the network.
+
+**Course corrections by the user** (in `tasks/lessons.md`)
+- Remote → local stdio, which dropped auth, TLS and sessions.
+- No `view` and no shell commands; getters only.
+- javax client, not jakarta.
+- Blacklist instead of whitelist.
+- CE only.
+- Smart tree explains missing usage sublists.
+- No per-router passwords; no `initialRouter`.
+
+**Open / next**
+- Testing in Claude Desktop / Claude Code by the user.
+- MCP Inspector tool calls (blocked locally by the permission policy).
+- SwiftMQ follow-up: `cc` into entity names containing '/'.
+- Later: UR/HA support, optional remote mode, pagination/caching if large networks need it.

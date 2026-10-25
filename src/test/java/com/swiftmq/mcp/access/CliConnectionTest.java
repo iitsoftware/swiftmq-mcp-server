@@ -68,6 +68,24 @@ class CliConnectionTest {
     }
 
     @Test
+    void contextRefusedByAdminRoleIsAccessDenied() {
+        FakeCli cli = new FakeCli() {
+            @Override
+            public void executeCommand(String command) throws Exception {
+                if (command.contains("sys$streams"))
+                    throw new Exception("Access to this context is not granted");
+                super.executeCommand(command);
+            }
+        };
+        cli.context("router1", "/sys$queuemanager", List.of(), Map.of());
+        connected(cli);
+        var e = assertThrows(SwiftMqAccessException.AccessDenied.class,
+                () -> connection.read("router1", MgmtPath.of("/sys$streams"), List.of()));
+        assertEquals("Router 'router1' denies access to /sys$streams: Access to this context is not granted", e.getMessage());
+        assertTrue(connection.read("router1", MgmtPath.of("/sys$queuemanager"), List.of()).isPresent());
+    }
+
+    @Test
     void unknownRouter() {
         connected(tree());
         assertThrows(SwiftMqAccessException.RouterUnavailable.class,

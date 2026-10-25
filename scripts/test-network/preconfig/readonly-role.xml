@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Read-only admin user for swiftmq-mcp-server. Apply to EVERY router of the network:
+  a role applies on the router that executes the command, and the role name must equal the user name.
+  With admin-roles-enabled="true", admin users WITHOUT a role can't connect any admin tool anymore,
+  so existing admins (here: admin) need a role too.
+-->
+<router>
+  <swiftlet name="sys$authentication">
+    <users>
+      <user name="mcp" password="mcp-secret" _op="add"/>
+    </users>
+  </swiftlet>
+  <swiftlet name="sys$mgmt" admin-roles-enabled="true">
+    <roles>
+      <role name="admin" _op="add">
+        <context-filters>
+          <context-filter name="everything" type="include" cli-context-predicate="/%" granted-commands="%"/>
+        </context-filters>
+      </role>
+      <role name="mcp" _op="add">
+        <context-filters>
+          <context-filter name="all-read-only" type="include" cli-context-predicate="/%" read-only="true"/>
+          <context-filter name="no-authentication" type="exclude" cli-context-predicate="/sys$authentication%"/>
+          <context-filter name="no-mgmt" type="exclude" cli-context-predicate="/sys$mgmt%"/>
+          <context-filter name="no-timer" type="exclude" cli-context-predicate="/sys$timer%"/>
+        </context-filters>
+      </role>
+    </roles>
+  </swiftlet>
+</router>

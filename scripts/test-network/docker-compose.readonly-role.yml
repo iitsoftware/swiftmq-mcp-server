@@ -1,0 +1,12 @@
+# Overlay: adds the read-only "mcp" admin user/role to all routers.
+#   docker compose -f docker-compose.yml -f docker-compose.readonly-role.yml up -d
+services:
+  routerA:
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerA.xml,/swiftmq/testpreconfig/readonly-role.xml
+  routerB:
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerB.xml,/swiftmq/testpreconfig/readonly-role.xml
+  routerC:
+    environment:
+      SWIFTMQ_PRECONFIG: /swiftmq/testpreconfig/routerC.xml,/swiftmq/testpreconfig/readonly-role.xml
