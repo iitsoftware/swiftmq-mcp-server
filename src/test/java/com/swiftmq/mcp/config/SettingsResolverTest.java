@@ -5,6 +5,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,7 +23,6 @@ class SettingsResolverTest {
         assertEquals("smqp://localhost:4001", s.url());
         assertEquals("admin", s.user());
         assertNull(s.password());
-        assertEquals("ConnectionFactory", s.connectionFactory());
         assertEquals(500, s.maxListItems());
         assertEquals(15000, s.requestTimeoutMs());
         assertTrue(s.extraDeniedContexts().isEmpty());
@@ -31,12 +31,11 @@ class SettingsResolverTest {
     @Test
     void argsWinOverEnvWinOverFile() throws Exception {
         Path cfg = write("cfg.json", """
-                {"url": "smqp://file:4001", "user": "fileuser", "connectionFactory": "FileCF"}""");
+                {"url": "smqp://file:4001", "user": "fileuser"}""");
         Map<String, String> env = Map.of("SWIFTMQ_URL", "smqp://env:4001", "SWIFTMQ_USER", "envuser");
         Settings s = SettingsResolver.resolve(new String[]{"--config", cfg.toString(), "--url", "smqp://arg:4001"}, env);
         assertEquals("smqp://arg:4001", s.url());
         assertEquals("envuser", s.user());
-        assertEquals("FileCF", s.connectionFactory());
     }
 
     @Test
@@ -72,6 +71,30 @@ class SettingsResolverTest {
     void urlOptionsWithAtSignAreFine() throws Exception {
         Settings s = SettingsResolver.resolve(new String[]{"--url", "smqp://localhost:4001/timeout=10000;host2=a@b", "--user", "u"}, Map.of());
         assertEquals("smqp://localhost:4001/timeout=10000;host2=a@b", s.url());
+    }
+
+    @Test
+    void connectionFactoryOptionsAreGone() throws Exception {
+        assertTrue(assertThrows(SettingsException.class, () -> SettingsResolver.resolve(
+                new String[]{"--url", "smqp://h:4001", "--user", "u", "--connection-factory", "CF"}, Map.of())).getMessage().contains("Unknown option"));
+        Path cfg = write("cfg.json", """
+                {"url": "smqp://h:4001", "user": "u", "connectionFactory": "CF"}""");
+        assertTrue(assertThrows(SettingsException.class, () -> SettingsResolver.resolve(new String[]{"--config", cfg.toString()}, Map.of()))
+                .getMessage().contains("connectionFactory"));
+    }
+
+    @Test
+    void urlBecomesConnectionFactoryProperties() {
+        assertEquals(Map.of("socketfactory", SmqpUrl.PLAIN_SOCKET_FACTORY, "hostname", "localhost", "port", "4001"),
+                SmqpUrl.toFactoryProperties("smqp://localhost:4001/timeout=10000"));
+        assertEquals(Map.of("socketfactory", "com.swiftmq.net.JSSESocketFactory", "hostname", "node1", "port", "4001",
+                        "reconnect_hostname2", "node2", "reconnect_port2", "4002", "reconnect_enabled", "true",
+                        "reconnect_retry_delay", "500", "reconnect_max_retries", "20", "keepaliveinterval", "60000"),
+                SmqpUrl.toFactoryProperties("smqp://node1:4001/host2=node2;port2=4002;reconnect=true;retrydelay=500;"
+                        + "maxretries=20;keepalive=60000;type=com.swiftmq.net.JSSESocketFactory;debug=true"));
+        for (String bad : List.of("smqp://localhost", "smqp://:4001", "smqp://h:x", "smqp://h:4001/port2=x",
+                "smqp://h:4001/bogus=1", "smqp://h:4001/reconnect"))
+            assertThrows(IllegalArgumentException.class, () -> SmqpUrl.toFactoryProperties(bad), bad);
     }
 
     @Test

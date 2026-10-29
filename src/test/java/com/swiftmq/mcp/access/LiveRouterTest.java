@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * Runs against a real local CE router (default settings: smqp://localhost:4001, ConnectionFactory, admin).
+ * Runs against a real local CE router (default settings: smqp://localhost:4001, admin).
  * Skipped if no router listens. Override with env SWIFTMQ_TEST_URL / SWIFTMQ_TEST_USER / SWIFTMQ_TEST_PASSWORD.
  */
 class LiveRouterTest {
@@ -29,7 +29,7 @@ class LiveRouterTest {
         assumeTrue(listening("localhost", 4001), "no SwiftMQ router on localhost:4001");
         Settings settings = new Settings(env("SWIFTMQ_TEST_URL", "smqp://localhost:4001/timeout=10000"),
                 env("SWIFTMQ_TEST_USER", "admin"), env("SWIFTMQ_TEST_PASSWORD", "secret"),
-                Settings.DEFAULT_CONNECTION_FACTORY, 500, 15000, Set.of(), null);
+                500, 15000, Set.of(), null);
         connection = new CliConnection(settings, new ContextGuard(Set.of())).start();
         CliConnectionTest.await(() -> connection.status().state() == State.CONNECTED && !connection.availableRouters().isEmpty());
         router = connection.availableRouters().first();

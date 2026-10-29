@@ -6,7 +6,9 @@ import com.swiftmq.mcp.access.ManagementReader;
 import com.swiftmq.mcp.access.NavigationState;
 import com.swiftmq.mcp.access.SwiftMqGateway.ConnectionStatus.State;
 import com.swiftmq.mcp.catalog.Catalog;
+import com.swiftmq.jms.SwiftMQConnectionFactory;
 import com.swiftmq.mcp.config.Settings;
+import com.swiftmq.mcp.config.SmqpUrl;
 import io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.junit.jupiter.api.*;
@@ -17,8 +19,6 @@ import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import java.io.File;
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -47,7 +47,7 @@ class RouterNetworkTest {
     static void connect() throws Exception {
         assumeTrue("true".equals(System.getenv("SWIFTMQ_TEST_NETWORK")), "set SWIFTMQ_TEST_NETWORK=true to run");
         docker("start", "routerC");   // in case a previous run was interrupted
-        Settings settings = new Settings(URL, "admin", "secret", Settings.DEFAULT_CONNECTION_FACTORY, 500, 15000, Set.of(), null);
+        Settings settings = new Settings(URL, "admin", "secret", 500, 15000, Set.of(), null);
         connection = new CliConnection(settings, new ContextGuard(Set.of())).start();
         Catalog catalog = Catalog.load();
         ToolContext ctx = new ToolContext(new ManagementReader(connection, catalog, 500), new NavigationState(), catalog, 500);
@@ -120,12 +120,8 @@ class RouterNetworkTest {
     }
 
     static void send(String queue, int count) throws Exception {
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.swiftmq.jndi.InitialContextFactoryImpl");
-        env.put(Context.PROVIDER_URL, URL);
-        InitialContext ctx = new InitialContext(env);
-        QueueConnection qc = ((QueueConnectionFactory) ctx.lookup(Settings.DEFAULT_CONNECTION_FACTORY)).createQueueConnection("admin", "secret");
-        ctx.close();
+        QueueConnection qc = ((QueueConnectionFactory) SwiftMQConnectionFactory.create(SmqpUrl.toFactoryProperties(URL)))
+                .createQueueConnection("admin", "secret");
         try {
             QueueSession s = qc.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
             QueueSender sender = s.createSender(s.createQueue(queue));

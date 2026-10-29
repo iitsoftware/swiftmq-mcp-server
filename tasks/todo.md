@@ -562,3 +562,18 @@ every edition.
       "doesn't exist"
 - Verified live: HA pair (localhost:4001) and the 3-router test network (routerA–C).
 - Still open (owner: SwiftMQ): `cc` into names containing '/'; until then these entries have no details.
+
+## SwiftMQConnectionFactory instead of JNDI (2026-10-29)
+
+JNDI hands out the connection factory the router's listener advertises (container hostname/port), so behind Docker
+or NAT the connect hung unless the listener had `connectaddress`/`connectport`.
+
+- [x] `SmqpUrl` maps the `smqp://` URL to `SwiftMQConnectionFactory.create(Map)` properties (host/port, host2/port2,
+      reconnect, retrydelay, maxretries, keepalive, type); JNDI-only options (timeout, debug, idleclose, intravm) are
+      ignored, unknown options rejected at startup
+- [x] `SwiftMqCli` builds the factory directly; `--connection-factory`, `SWIFTMQ_CONNECTION_FACTORY`,
+      `connectionFactory` (config file: explicit error) and `Settings.connectionFactory` removed
+- [x] Test network: removed the `connectaddress`/`connectport` workaround from routerA's preconfig
+- [x] README (settings, URL options, TLS via `type`, troubleshooting), config example
+- Verified: full suite; RouterNetworkTest over the mapped port 14001 without the workaround (JNDI hangs there);
+  host2/port2 fallback (dead primary → Docker router); live HA pair not running at the time of this change.

@@ -71,7 +71,6 @@ Settings come from command line arguments, then environment variables, then an o
 | Router URL | `--url` | `SWIFTMQ_URL` | — (required) |
 | User | `--user` | `SWIFTMQ_USER` | — (required) |
 | Password | `--password-file <file>` | `SWIFTMQ_PASSWORD` | none |
-| JNDI connection factory | `--connection-factory` | `SWIFTMQ_CONNECTION_FACTORY` | `ConnectionFactory` |
 | Config file | `--config <file>` | — | none |
 | Log file | `--log <file>` | — | `~/.swiftmq-mcp/logs/server.log` |
 
@@ -89,10 +88,25 @@ java -jar target/swiftmq-mcp-server.jar --config config/swiftmq-mcp.json
 
 `SWIFTMQ_PASSWORD=secret && java …` does **not** work: it sets a shell variable that isn't passed on to `java`.
 
-URL options follow SwiftMQ's syntax, without `?`: `smqp://localhost:4001/timeout=10000;reconnect=true`.
+The server builds its connection factory from the URL itself (`SwiftMQConnectionFactory`, no JNDI lookup), so it
+connects exactly to the URL's host and port. Docker port mappings and NAT need no `connectaddress`/`connectport` on the
+router's listener.
+
+URL options follow SwiftMQ's syntax, without `?`: `smqp://localhost:4001/reconnect=true;retrydelay=1000`.
+
+| URL option | Meaning |
+|---|---|
+| `host2`, `port2` | Second instance of an HA router pair |
+| `reconnect` | `true`: reconnect transparently after a connection loss or HA failover |
+| `retrydelay`, `maxretries` | Reconnect delay (ms) and number of attempts |
+| `keepalive` | Keepalive interval (ms) |
+| `type` | Socket factory: `com.swiftmq.net.PlainSocketFactory` (default) or `com.swiftmq.net.JSSESocketFactory` for TLS |
+
+`timeout`, `debug`, `idleclose` and `intravm` only apply to JNDI and are ignored; the server's own time limit is
+`limits.requestTimeoutMs`. Other options are rejected at startup.
 
 For an HA router pair, name the second instance with `host2`/`port2` and turn on `reconnect`, so the server follows a
-failover: `smqp://localhost:4001/host2=localhost;port2=4002;reconnect=true;timeout=10000`. Only the active instance
+failover: `smqp://localhost:4001/host2=localhost;port2=4002;reconnect=true`. Only the active instance
 accepts connections; the standby's port being closed is normal.
 
 Routers don't have to be configured. The server learns which routers in the network are available, and when they
@@ -103,7 +117,7 @@ Optional config file. Copy `config/swiftmq-mcp.json.example` to `config/swiftmq-
 
 ```json
 {
-  "url": "smqp://prod-router:4001/timeout=10000",
+  "url": "smqp://prod-router:4001",
   "user": "analyst",
   "passwordFile": "/Users/me/.swiftmq-mcp/prod.pw",
   "limits": { "maxListItems": 500, "requestTimeoutMs": 15000 },
@@ -424,9 +438,8 @@ Start with `connection_info`: it shows the connection state and the last error.
   server keeps retrying in the background (1 s up to 30 s).
 - **`invalid password`:** the password didn't reach the server. `SWIFTMQ_PASSWORD=secret java …` passes it;
   `SWIFTMQ_PASSWORD=secret && java …` doesn't. In client configs, put it in `env`.
-- **`no response within … ms` / stays `CONNECTING`:** the router is reachable, but the address it hands out to JMS
-  clients isn't. Typical behind NAT or Docker: set `connectaddress` / `connectport` on the router's JMS listener to
-  the address clients use (see `scripts/test-network/preconfig/routerA.xml`).
+- **`no response within … ms` / stays `CONNECTING`:** nothing answers SMQP at the URL's host and port, e.g. a
+  firewall, a wrong port mapping, or a TLS listener without `type=com.swiftmq.net.JSSESocketFactory` in the URL.
 - **`Router 'X' denies access to …`:** an admin role on that router excludes the context. That's intended for
   sys$authentication, sys$mgmt and sys$timer; for anything else, check the role.
 - **Consumer details "not available":** the router runs with the smart management tree; set
@@ -450,7 +463,7 @@ Only routerA is reachable from the host, on `localhost:14001`; B and C are reach
 ```bash
 (cd scripts/test-network && docker compose up -d)
 SWIFTMQ_TEST_NETWORK=true mvn test -Dtest=RouterNetworkTest   # stops and starts routerC during the test
-SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001/timeout=10000 --user admin
+SWIFTMQ_PASSWORD=secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001 --user admin
 (cd scripts/test-network && docker compose down -v)
 ```
 
@@ -458,7 +471,7 @@ With the read-only role from above on all three routers (user `mcp` / `mcp-secre
 
 ```bash
 (cd scripts/test-network && docker compose -f docker-compose.yml -f docker-compose.readonly-role.yml up -d)
-SWIFTMQ_PASSWORD=mcp-secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001/timeout=10000 --user mcp
+SWIFTMQ_PASSWORD=mcp-secret java -jar target/swiftmq-mcp-server.jar --url smqp://localhost:14001 --user mcp
 ```
 
 ### Known limitation

@@ -7,6 +7,8 @@ Rules derived from corrections during planning/implementation (2026-10-24).
 - **Know the shell vs. API boundary.** `output`, aliases, `echo`, `var`, `execute` etc. belong to the interactive CLI shell, not the CLI Admin API. Don't design around shell features.
 - **Don't execute commands beyond navigation.** Only `sr` and `cc`. No `view`, no `gc`: message content stays off-limits.
 - **Missing usage sublists usually mean the smart tree is on** (`use-smart-tree`, default true, readable at `/.env`). Hint the user to set `use-smart-tree="false"` on `<router>`; don't report 0.
+- **Build the connection factory on the client** (`SwiftMQConnectionFactory.create`), not via JNDI: a JNDI factory
+  carries the address the router's listener advertises, which breaks behind Docker/NAT.
 - **Use the javax client** (`com.swiftmq:swiftmq-client`), not `swiftmq-client-jakarta`, unless told otherwise.
 
 - **One connection reaches the whole network.** No per-router passwords or `authenticate` are needed; don't add per-router credentials.

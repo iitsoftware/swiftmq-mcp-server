@@ -57,7 +57,7 @@ class SecurityTest {
         cli.context("router", "/sys$net/usage", List.of(), Map.of());
 
         connector.results.add(cli);
-        Settings settings = new Settings("smqp://localhost:4001", "admin", "s3cret-login", "ConnectionFactory", 500, 2000, Set.of(), null);
+        Settings settings = new Settings("smqp://localhost:4001", "admin", "s3cret-login", 500, 2000, Set.of(), null);
         connection = new CliConnection(settings, new ContextGuard(Set.of()), connector, Clock.systemUTC()).start();
         CliConnectionTest.await(() -> connection.status().state() == State.CONNECTED);
         Catalog catalog = Catalog.load();

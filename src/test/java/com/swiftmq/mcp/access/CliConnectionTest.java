@@ -13,7 +13,7 @@ import java.util.function.BooleanSupplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CliConnectionTest {
-    static final Settings SETTINGS = new Settings("smqp://localhost:4001", "admin", "secret", "ConnectionFactory",
+    static final Settings SETTINGS = new Settings("smqp://localhost:4001", "admin", "secret",
             500, 2000, Set.of(), null);
 
     final FakeConnector connector = new FakeConnector();

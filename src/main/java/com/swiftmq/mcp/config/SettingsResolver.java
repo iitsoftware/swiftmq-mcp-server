@@ -24,14 +24,13 @@ public final class SettingsResolver {
               --user <name>              SwiftMQ user                             (env SWIFTMQ_USER)
               --password-file <file>     File containing the password             (env SWIFTMQ_PASSWORD_FILE)
                                          or set the password in env SWIFTMQ_PASSWORD
-              --connection-factory <n>   JNDI name, default ConnectionFactory     (env SWIFTMQ_CONNECTION_FACTORY)
               --config <file>            Optional JSON config file
               --log <file>               Log file, default ~/.swiftmq-mcp/logs/server.log
               --help                     Show this help
             """;
 
     private static final Set<String> OPTIONS = Set.of(
-            "--url", "--user", "--password-file", "--connection-factory", "--config", "--log");
+            "--url", "--user", "--password-file", "--config", "--log");
 
     private SettingsResolver() {
     }
@@ -47,8 +46,6 @@ public final class SettingsResolver {
 
         String url = first(opts.get("--url"), env.get("SWIFTMQ_URL"), text(file, "url"));
         String user = first(opts.get("--user"), env.get("SWIFTMQ_USER"), text(file, "user"));
-        String connectionFactory = first(opts.get("--connection-factory"), env.get("SWIFTMQ_CONNECTION_FACTORY"),
-                text(file, "connectionFactory"), Settings.DEFAULT_CONNECTION_FACTORY);
         String logFile = first(opts.get("--log"), text(file, "log"));
 
         String password = env.get("SWIFTMQ_PASSWORD");
@@ -57,6 +54,8 @@ public final class SettingsResolver {
             if (passwordFile != null)
                 password = readSecretFile(passwordFile);
         }
+        if (file != null && file.has("connectionFactory"))
+            throw new SettingsException("\"connectionFactory\" is no longer supported: the server builds the connection factory from \"url\"");
         if (file != null && file.has("password"))
             throw new SettingsException("The config file must not contain \"password\"; use \"passwordFile\" or env SWIFTMQ_PASSWORD");
 
@@ -70,7 +69,7 @@ public final class SettingsResolver {
                 extraDenied.add(n.asString().toLowerCase(Locale.ROOT));
 
         validate(url, user, maxListItems, requestTimeoutMs);
-        return new Settings(url, user, password, connectionFactory,
+        return new Settings(url, user, password,
                 maxListItems, requestTimeoutMs, Set.copyOf(extraDenied), logFile);
     }
 
@@ -92,12 +91,11 @@ public final class SettingsResolver {
     private static void validate(String url, String user, int maxListItems, long requestTimeoutMs) throws SettingsException {
         if (url == null)
             throw new SettingsException("Missing router URL: --url or env SWIFTMQ_URL");
-        if (!url.startsWith("smqp://"))
-            throw new SettingsException("Router URL must start with smqp:// : " + url);
-        String authority = url.substring("smqp://".length());
-        int slash = authority.indexOf('/');
-        if ((slash < 0 ? authority : authority.substring(0, slash)).contains("@"))
-            throw new SettingsException("Router URL must not contain credentials; use --user and env SWIFTMQ_PASSWORD");
+        try {
+            SmqpUrl.toFactoryProperties(url);
+        } catch (IllegalArgumentException e) {
+            throw new SettingsException(e.getMessage());
+        }
         if (user == null)
             throw new SettingsException("Missing user: --user or env SWIFTMQ_USER");
         if (maxListItems <= 0)
