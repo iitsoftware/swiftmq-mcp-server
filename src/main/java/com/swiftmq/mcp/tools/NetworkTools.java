@@ -13,6 +13,14 @@ import static com.swiftmq.mcp.tools.ToolFactory.tool;
 /** Network swiftlet: all TCP connections of a router with owning swiftlet and throughput. */
 final class NetworkTools {
     static final MgmtPath NET_USAGE = MgmtPath.of("/sys$net/usage");
+    /**
+     * Swiftlets whose outgoing connections are named {@code host/ip:port}. The CLI can't read such entries, but the
+     * owning swiftlet lists the same name in its own usage list, which tells whose connection it is.
+     */
+    static final Map<MgmtPath, String> OUTGOING_OWNERS = Map.of(
+            MgmtPath.of("/sys$routing/usage/connections"), "sys$routing",
+            MgmtPath.of("/sys$hacontroller/usage/replication-connections"), "sys$hacontroller");
+    static final String UNKNOWN = "unknown";
 
     private NetworkTools() {
     }
@@ -21,7 +29,8 @@ final class NetworkTools {
         return List.of(
                 tool("list_network_connections", "Network connections",
                         "Lists the network connections of a router (host:port) with the owning swiftlet (sys$jms, sys$amqp, sys$mqtt, "
-                                + "sys$routing, ...), connect time and throughput in/out in KB/s. Sorted by total throughput, highest first.",
+                                + "sys$routing, sys$hacontroller, ...), connect time and throughput in/out in KB/s. Sorted by total throughput, highest first. "
+                                + "Outgoing connections (named host/ip:port) can only be listed with owner and remote address.",
                         schema("\"swiftlet\":{\"type\":\"string\",\"description\":\"Only connections of this swiftlet, e.g. 'sys$jms'.\"}",
                                 "\"limit\":{\"type\":\"integer\",\"minimum\":1,\"description\":\"Max. connections returned, default 100.\"}"),
                         args -> connections(ctx, args)),
@@ -36,7 +45,7 @@ final class NetworkTools {
         String router = ctx.router(args);
         String swiftlet = args.optString("swiftlet");
         int limit = args.optInt("limit", 100, 1, ctx.maxListItems);
-        List<Map<String, Object>> rows = new ArrayList<>(ctx.entries(router, NET_USAGE).stream()
+        List<Map<String, Object>> rows = new ArrayList<>(netEntries(ctx, router).stream()
                 .filter(c -> swiftlet == null || swiftlet.equalsIgnoreCase(String.valueOf(c.get("swiftlet"))))
                 .toList());
         rows.sort(Comparator.comparing(NetworkTools::throughput).reversed());
@@ -47,6 +56,38 @@ final class NetworkTools {
         if (rows.size() > limit)
             r.put("truncated", true);
         return r;
+    }
+
+    /**
+     * The connections of {@code /sys$net/usage}. Unreadable ones (outgoing, named {@code host/ip:port}) get their
+     * remote address from the name and their swiftlet from {@link #OUTGOING_OWNERS}.
+     */
+    static List<Map<String, Object>> netEntries(ToolContext ctx, String router) {
+        List<Map<String, Object>> rows = ctx.entries(router, NET_USAGE);
+        Map<String, String> owners = null;
+        for (Map<String, Object> row : rows) {
+            if (!Boolean.FALSE.equals(row.get("readable")))
+                continue;
+            if (owners == null)
+                owners = outgoingOwners(ctx, router);
+            String name = row.get("name").toString();
+            row.put("swiftlet", owners.getOrDefault(name, UNKNOWN));
+            row.put("remoteAddress", name.substring(name.indexOf('/') + 1));
+            row.put("direction", "outgoing");
+        }
+        return rows;
+    }
+
+    private static Map<String, String> outgoingOwners(ToolContext ctx, String router) {
+        Map<String, String> owners = new HashMap<>();
+        OUTGOING_OWNERS.forEach((list, swiftlet) -> {
+            try {
+                ctx.read(router, list).ifPresent(v -> v.children().forEach(name -> owners.put(name, swiftlet)));
+            } catch (SwiftMqAccessException.AccessDenied denied) {
+                // denied by configuration: the owner stays unknown
+            }
+        });
+        return owners;
     }
 
     static Map<String, Object> summary(ToolContext ctx, Args args) {
@@ -65,8 +106,8 @@ final class NetworkTools {
 
     private static Map<String, Object> summary(ToolContext ctx, String router) {
         Map<String, Map<String, Object>> bySwiftlet = new TreeMap<>();
-        for (Map<String, Object> c : ctx.entries(router, NET_USAGE)) {
-            Map<String, Object> s = bySwiftlet.computeIfAbsent(String.valueOf(c.get("swiftlet")), k -> new LinkedHashMap<>(
+        for (Map<String, Object> c : netEntries(ctx, router)) {
+            Map<String, Object> s = bySwiftlet.computeIfAbsent(c.get("swiftlet") instanceof String name ? name : UNKNOWN, k -> new LinkedHashMap<>(
                     Map.of("connections", 0, "throughputInKBs", BigDecimal.ZERO, "throughputOutKBs", BigDecimal.ZERO)));
             s.put("connections", (Integer) s.get("connections") + 1);
             s.put("throughputInKBs", ((BigDecimal) s.get("throughputInKBs")).add(decimal(c.get("throughput-input"))));

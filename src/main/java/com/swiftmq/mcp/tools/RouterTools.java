@@ -81,16 +81,8 @@ final class RouterTools {
         } catch (SwiftMqAccessException e) {
             r.put("memory", "not available");
         }
-        List<String> swiftlets = new ArrayList<>();
-        for (String swiftlet : ctx.catalog.swiftlets(Catalog.CE).keySet()) {
-            try {
-                if (ctx.read(router, MgmtPath.of("/" + swiftlet)).isPresent())
-                    swiftlets.add(swiftlet);
-            } catch (SwiftMqAccessException.AccessDenied denied) {
-                // additionally denied by configuration
-            }
-        }
-        r.put("swiftlets", swiftlets);
+        r.put("edition", ctx.reader.edition(router).name());
+        r.put("swiftlets", ctx.swiftlets(router));
         if (!Boolean.FALSE.equals(env.properties().get("use-smart-tree")))
             r.put("hint", ToolContext.smartTreeHint(router));
         return r;

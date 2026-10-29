@@ -519,3 +519,46 @@ It reaches every router of the network through one connection.
 - MCP Inspector tool calls (blocked locally by the permission policy).
 - SwiftMQ follow-up: `cc` into entity names containing '/'.
 - Later: UR/HA support, optional remote mode, pagination/caching if large networks need it.
+
+---
+
+# UR/HA support (2026-10-28)
+
+Bug: on a UR router, `list_swiftlets`/`get_router_info` miss `sys$filecache` and `sys$jac`, and browsing them
+shows no type/description/properties. Cause: the catalog is CE-only. The CLI API can't list `/` (`cc /` →
+"Unknown context") nor property names (only `lc`, refused), so the catalog stays the source; it must cover
+every edition.
+
+- [x] `Edition` enum (CE, UR, HA): JSON key, base chain (HA → UR → CE), detection from the `/.env` release
+      string ("13.02.04 Universal Edition"); unknown → CE
+- [x] Catalog stores per-edition layers (CE full; UR/HA only additions and per-swiftlet overrides) and merges
+      them on lookup; `swiftlets(Edition)` / `lookup(Edition, path)`
+- [x] Generator: `<ce dist> <ur dist> <ha dist> <out>`; per layer scan `kernel/*/config.xml` and
+      `optional-swiftlets/extension/*/config.xml` (xt$ swiftlets); one release across all; review new secrets
+- [x] `ManagementReader` detects and caches the edition per router; reads use that edition
+- [x] `list_swiftlets` / `get_router_info` use the router's edition; `get_router_info` shows `edition`
+- [x] `browse_context` on a context without metadata says why properties are missing
+- [x] pom: gen-catalog profile + surefire property for the three distributions; regenerate the JSON
+- [x] Tests: catalog layers/merge, edition detection, reader with UR fake, live test against the UR router
+- [x] README: editions supported
+
+## Review (UR/HA)
+
+- Catalog: CE 16, UR 22, HA 23 swiftlets (UR adds sys$filecache, sys$jac, the four xt$ extensions and its own
+  sys$jms; HA adds sys$hacontroller and replaces sys$jms, sys$queuemanager, sys$routing, sys$store, sys$filecache).
+  The JSON stores layers, not merged copies. New passwords (bridges, javamail, replicator) are flagged secret.
+- Verified against the UR router on localhost:4001 (live test + packaged jar over stdio): list_swiftlets and
+  get_router_info include sys$filecache and sys$jac; browse_context shows type, description and properties.
+- Verified against a live HA pair on localhost:4001/4002 (2026-10-29): edition HA, sys$hacontroller listed.
+- A context the catalog doesn't know (e.g. a newer release's swiftlet) now carries a `note` instead of looking empty.
+- Edition is cached per router name for the process lifetime.
+
+## Follow-up (2026-10-29): names containing '/'
+
+- [x] network_summary / list_network_connections: outgoing `host/ip:port` entries of `/sys$net/usage` get their
+      swiftlet from the owner's usage list with the identical name (`/sys$routing/usage/connections`,
+      `/sys$hacontroller/usage/replication-connections`), else `unknown` (was `null`); plus remoteAddress and direction
+- [x] browse_context / change_context: such a path fails with "exists, but its name contains '/'" instead of
+      "doesn't exist"
+- Verified live: HA pair (localhost:4001) and the 3-router test network (routerA–C).
+- Still open (owner: SwiftMQ): `cc` into names containing '/'; until then these entries have no details.

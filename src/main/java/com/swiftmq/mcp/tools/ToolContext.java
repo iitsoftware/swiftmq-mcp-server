@@ -80,6 +80,23 @@ public final class ToolContext {
         return reader.read(router, path);
     }
 
+    /**
+     * The swiftlets of the router's edition that exist on the router and may be read, without {@code .env}.
+     * The catalog is the source of candidates: the CLI Admin API can't list the root context.
+     */
+    List<String> swiftlets(String router) {
+        List<String> available = new ArrayList<>();
+        for (String swiftlet : catalog.swiftlets(reader.edition(router)).keySet()) {
+            try {
+                if (read(router, MgmtPath.of("/" + swiftlet)).isPresent())
+                    available.add(swiftlet);
+            } catch (SwiftMqAccessException.AccessDenied denied) {
+                // additionally denied by configuration
+            }
+        }
+        return available;
+    }
+
     EntityView require(String router, MgmtPath path, String notFound) {
         return reader.read(router, path).orElseThrow(() -> new SwiftMqAccessException(notFound));
     }

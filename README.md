@@ -7,10 +7,13 @@ SwiftMQ credentials** via the CLI Admin API to a router, and from there it sees 
 - Read-only: nothing can be created, changed or deleted, and message contents are not accessible.
 - `sys$authentication`, `sys$mgmt` and `sys$timer` are never accessed. Passwords in the management tree are redacted.
 - Transport: stdio (the client starts the server as a child process).
-- Supported: SwiftMQ **13.x Community Edition (CE)**.
+- Supported: SwiftMQ **13.x Community (CE), Universal (UR) and High Availability (HA) Edition**, including UR's
+  extension swiftlets (`xt$jmsbridge`, `xt$amqpbridge`, `xt$javamail`, `xt$replicator`). The edition is detected per
+  router from its release (`get_router_info` shows it), so a network may mix editions.
 
-> **Status:** feature-complete for SwiftMQ 13.x CE. Tested against a single router and a 3-router network. UR/HA
-> support and an optional remote mode are possible next steps; see [`tasks/todo.md`](tasks/todo.md).
+> **Status:** feature-complete for SwiftMQ 13.x. Tested against single CE and UR routers, an HA router pair and a
+> 3-router CE network.
+> An optional remote mode is a possible next step; see [`tasks/todo.md`](tasks/todo.md).
 
 ## Tools
 
@@ -87,6 +90,10 @@ java -jar target/swiftmq-mcp-server.jar --config config/swiftmq-mcp.json
 `SWIFTMQ_PASSWORD=secret && java …` does **not** work: it sets a shell variable that isn't passed on to `java`.
 
 URL options follow SwiftMQ's syntax, without `?`: `smqp://localhost:4001/timeout=10000;reconnect=true`.
+
+For an HA router pair, name the second instance with `host2`/`port2` and turn on `reconnect`, so the server follows a
+failover: `smqp://localhost:4001/host2=localhost;port2=4002;reconnect=true;timeout=10000`. Only the active instance
+accepts connections; the standby's port being closed is normal.
 
 Routers don't have to be configured. The server learns which routers in the network are available, and when they
 become unavailable, from the connected router.
@@ -432,7 +439,7 @@ Start with `connection_info`: it shows the connection state and the last error.
 
 ```bash
 mvn test                           # unit, security and stdio process tests (live-router tests run if localhost:4001 answers)
-mvn -Pgen-catalog process-classes  # regenerate the property catalog from ./swiftmq (local CE distribution)
+mvn -Pgen-catalog process-classes  # regenerate the property catalog from ./swiftmq (local CE, UR and HA distributions)
 ```
 
 ### Test network
@@ -456,8 +463,11 @@ SWIFTMQ_PASSWORD=mcp-secret java -jar target/swiftmq-mcp-server.jar --url smqp:/
 
 ### Known limitation
 
-The CLI Admin API can't enter management entities whose name contains `/`. Outgoing routing connections are named
-like that (`routerB/172.21.0.2:4100`). They are listed with router name and remote address, but without details.
+The CLI Admin API can't enter management entities whose name contains `/`: the router splits the path at every `/`,
+and there is no escape syntax. Outgoing connections are named like that, e.g. routing connections
+(`routerB/172.21.0.2:4100`) and the HA replication connection (`localhost/127.0.0.1:2001`). They are listed with
+owning swiftlet, remote address and direction, but without details; `browse_context` says so instead of reporting
+them as missing.
 
 Plan and progress: [`tasks/todo.md`](tasks/todo.md).
 

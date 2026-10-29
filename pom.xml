@@ -24,8 +24,10 @@
         <logback.version>1.5.18</logback.version>
         <junit.version>5.11.4</junit.version>
 
-        <!-- Local SwiftMQ CE distribution, used only to (re)generate the metadata catalog -->
-        <swiftmq.ce.kernel>${project.basedir}/swiftmq/swiftmq_ce_13.2.4_router/kernel</swiftmq.ce.kernel>
+        <!-- Local SwiftMQ CE/UR/HA distributions, used only to (re)generate the metadata catalog -->
+        <swiftmq.ce.dist>${project.basedir}/swiftmq/swiftmq_ce_13.2.4_router</swiftmq.ce.dist>
+        <swiftmq.ur.dist>${project.basedir}/swiftmq/swiftmq_ur_13.2.4_router</swiftmq.ur.dist>
+        <swiftmq.ha.dist>${project.basedir}/swiftmq/swiftmq_ha_13.2.4_router</swiftmq.ha.dist>
     </properties>
 
     <dependencies>
@@ -94,7 +96,9 @@
                 <version>3.5.2</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <swiftmq.ce.kernel>${swiftmq.ce.kernel}</swiftmq.ce.kernel>
+                        <swiftmq.ce.dist>${swiftmq.ce.dist}</swiftmq.ce.dist>
+                        <swiftmq.ur.dist>${swiftmq.ur.dist}</swiftmq.ur.dist>
+                        <swiftmq.ha.dist>${swiftmq.ha.dist}</swiftmq.ha.dist>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -155,7 +159,9 @@
                                 <configuration>
                                     <mainClass>com.swiftmq.mcp.catalog.CatalogGenerator</mainClass>
                                     <arguments>
-                                        <argument>${swiftmq.ce.kernel}</argument>
+                                        <argument>${swiftmq.ce.dist}</argument>
+                                        <argument>${swiftmq.ur.dist}</argument>
+                                        <argument>${swiftmq.ha.dist}</argument>
                                         <argument>${project.basedir}/src/main/resources/swiftmq-metadata.json</argument>
                                     </arguments>
                                 </configuration>

@@ -13,10 +13,12 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Builds the {@link Catalog} from the {@code kernel/<swiftlet>/config.xml} files of a SwiftMQ distribution.
+ * Builds the {@link Catalog} from the swiftlets' {@code config.xml} files of the CE, UR and HA distributions:
+ * {@code kernel/<swiftlet>/config.xml} and the extension swiftlets in
+ * {@code optional-swiftlets/extension/<swiftlet>/config.xml}. Each distribution becomes one edition layer.
  * Denied swiftlets are left out. Fails if a property name looks like a secret but isn't covered by {@link Secrets}.
  * <p>
- * Usage: {@code CatalogGenerator <ce kernel dir> <output json>} (see the {@code gen-catalog} Maven profile).
+ * Usage: {@code CatalogGenerator <ce dist> <ur dist> <ha dist> <output json>} (see the {@code gen-catalog} Maven profile).
  */
 public final class CatalogGenerator {
 
@@ -24,43 +26,53 @@ public final class CatalogGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.err.println("Usage: CatalogGenerator <ce kernel dir> <output json>");
+        if (args.length != 4) {
+            System.err.println("Usage: CatalogGenerator <ce dist> <ur dist> <ha dist> <output json>");
             System.exit(1);
         }
-        Catalog catalog = generate(new File(args[0]));
-        Catalog.MAPPER.writerWithDefaultPrettyPrinter().writeValue(new File(args[1]), catalog);
-        System.err.println("Wrote " + args[1] + " (" + catalog.swiftlets(Catalog.CE).size() + " swiftlets, release " + catalog.release() + ")");
+        Catalog catalog = generate(Map.of(Edition.CE, new File(args[0]), Edition.UR, new File(args[1]), Edition.HA, new File(args[2])));
+        Catalog.MAPPER.writerWithDefaultPrettyPrinter().writeValue(new File(args[3]), catalog);
+        System.err.println("Wrote " + args[3] + " (release " + catalog.release() + "; swiftlets: "
+                + Arrays.stream(Edition.values()).map(e -> e.key() + " " + catalog.swiftlets(e).size()).toList() + ")");
     }
 
-    public static Catalog generate(File ceKernelDir) throws IOException {
-        Map<String, CatalogNode> swiftlets = new TreeMap<>();
+    /** @param distributions the root directory of each edition's router distribution */
+    public static Catalog generate(Map<Edition, File> distributions) throws IOException {
+        Map<String, Map<String, CatalogNode>> layers = new TreeMap<>();
         Set<String> releases = new TreeSet<>();
-        for (File config : configFiles(ceKernelDir)) {
-            Element swiftlet = parse(config);
-            String name = swiftlet.getAttribute("name");
-            if (DeniedContexts.isFixedDenied(name))
-                continue;
-            releases.add(swiftlet.getAttribute("release"));
-            Element configuration = single(swiftlet, "configuration");
-            swiftlets.put(name, entity(configuration, swiftlet.getAttribute("displayname"), swiftlet.getAttribute("description"), name));
+        for (Edition edition : Edition.values()) {
+            File dist = distributions.get(edition);
+            if (dist == null)
+                throw new IllegalArgumentException("No distribution for edition " + edition.key());
+            Map<String, CatalogNode> swiftlets = new TreeMap<>();
+            for (File config : configFiles(dist)) {
+                Element swiftlet = parse(config);
+                String name = swiftlet.getAttribute("name");
+                if (DeniedContexts.isFixedDenied(name))
+                    continue;
+                releases.add(swiftlet.getAttribute("release"));
+                Element configuration = single(swiftlet, "configuration");
+                swiftlets.put(name, entity(configuration, swiftlet.getAttribute("displayname"), swiftlet.getAttribute("description"), name));
+            }
+            if (swiftlets.isEmpty())
+                throw new IllegalStateException("No swiftlet config.xml found under " + dist);
+            layers.put(edition.key(), swiftlets);
         }
-        if (swiftlets.isEmpty())
-            throw new IllegalStateException("No swiftlet config.xml found under " + ceKernelDir);
         if (releases.size() != 1)
             throw new IllegalStateException("Expected exactly one release, found " + releases);
-        return new Catalog(releases.iterator().next(), Map.of(Catalog.CE, swiftlets));
+        return new Catalog(releases.iterator().next(), layers);
     }
 
-    private static List<File> configFiles(File kernelDir) {
-        File[] dirs = kernelDir.listFiles(File::isDirectory);
-        if (dirs == null)
-            throw new IllegalArgumentException("Not a directory: " + kernelDir);
-        return Arrays.stream(dirs)
-                .map(d -> new File(d, "config.xml"))
-                .filter(File::isFile)
-                .sorted()
-                .toList();
+    private static List<File> configFiles(File dist) {
+        if (!dist.isDirectory())
+            throw new IllegalArgumentException("Not a directory: " + dist);
+        List<File> files = new ArrayList<>();
+        for (String dir : List.of("kernel", "optional-swiftlets/extension")) {
+            File[] swiftlets = new File(dist, dir).listFiles(File::isDirectory);
+            if (swiftlets != null)
+                Arrays.stream(swiftlets).map(d -> new File(d, "config.xml")).filter(File::isFile).forEach(files::add);
+        }
+        return files.stream().sorted().toList();
     }
 
     private static CatalogNode entity(Element e, String display, String description, String path) {

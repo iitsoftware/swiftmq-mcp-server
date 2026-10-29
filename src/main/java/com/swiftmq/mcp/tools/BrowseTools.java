@@ -40,17 +40,9 @@ final class BrowseTools {
     }
 
     static Map<String, Object> swiftlets(ToolContext ctx, String router) {
-        List<String> available = new ArrayList<>();
-        List<String> candidates = new ArrayList<>(ctx.catalog.swiftlets(Catalog.CE).keySet());
-        candidates.add(Catalog.ENV);
-        for (String swiftlet : candidates) {
-            try {
-                if (ctx.read(router, MgmtPath.of("/" + swiftlet)).isPresent())
-                    available.add(swiftlet);
-            } catch (SwiftMqAccessException.AccessDenied denied) {
-                // additionally denied by configuration
-            }
-        }
+        List<String> available = new ArrayList<>(ctx.swiftlets(router));
+        if (ctx.read(router, MgmtPath.of("/" + Catalog.ENV)).isPresent())
+            available.add(Catalog.ENV);
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("router", router);
         r.put("swiftlets", available);
@@ -66,14 +58,18 @@ final class BrowseTools {
             r.put("path", "/");
             return r;
         }
-        EntityView view = ctx.require(router, path, "Context " + path + " doesn't exist on router '" + router + "'");
-        CatalogNode node = ctx.catalog.lookup(Catalog.CE, path.toString());
+        EntityView view = existing(ctx, router, path);
+        CatalogNode node = ctx.reader.describe(router, path);
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("router", router);
         r.put("path", path.toString());
         if (node != null) {
             r.put("type", node.kind() == CatalogNode.Kind.LIST ? "list" : "entity");
             r.put("description", node.description());
+        } else {
+            r.put("note", "The metadata for " + ctx.reader.edition(router).name() + " " + ctx.catalog.release()
+                    + " doesn't describe this context, so its properties can't be listed (the CLI Admin API only "
+                    + "reads properties by name). Its child entities are listed.");
         }
         r.put("properties", view.properties());
         r.put("children", view.children());
@@ -84,11 +80,31 @@ final class BrowseTools {
         return r;
     }
 
+    /**
+     * Reads a context, or fails with the reason: either it doesn't exist, or it is an entity whose name contains '/'
+     * (e.g. the outgoing connection {@code localhost/127.0.0.1:2001}), which the CLI can't enter.
+     */
+    private static EntityView existing(ToolContext ctx, String router, MgmtPath path) {
+        Optional<EntityView> view = ctx.read(router, path);
+        if (view.isPresent())
+            return view.get();
+        List<String> segments = path.segments();
+        for (int i = segments.size() - 1; i > 0; i--) {
+            MgmtPath parent = MgmtPath.of("/" + String.join("/", segments.subList(0, i)));
+            String name = String.join("/", segments.subList(i, segments.size()));
+            if (ctx.read(router, parent).map(p -> p.children().contains(name)).orElse(false))
+                throw new SwiftMqAccessException("'" + name + "' in " + parent + " exists, but its name contains '/', which the "
+                        + "SwiftMQ CLI Admin API can't open. Its properties and sub-contexts aren't accessible; list_network_connections "
+                        + "and list_routing_connections show what is known from the name.");
+        }
+        throw new SwiftMqAccessException("Context " + path + " doesn't exist on router '" + router + "'");
+    }
+
     static Map<String, Object> changeContext(ToolContext ctx, Args args) {
         MgmtPath path = MgmtPath.resolve(ctx.nav.currentContext(), args.string("path"));
         if (!path.isRoot()) {
             String router = ctx.router(args);
-            ctx.require(router, path, "Context " + path + " doesn't exist on router '" + router + "'");
+            existing(ctx, router, path);
         }
         ctx.nav.changeContext(path);
         return Map.of("currentContext", path.toString());

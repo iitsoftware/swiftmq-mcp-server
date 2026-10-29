@@ -2,6 +2,7 @@ package com.swiftmq.mcp.access;
 
 import com.swiftmq.mcp.access.SwiftMqGateway.ConnectionStatus.State;
 import com.swiftmq.mcp.catalog.Catalog;
+import com.swiftmq.mcp.catalog.Edition;
 import com.swiftmq.mcp.config.Settings;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,6 +58,21 @@ class LiveRouterTest {
         assertInstanceOf(Boolean.class, env.properties().get("use-smart-tree"));
         var mem = reader.read(router, MgmtPath.of("/.env/router-memory-list/" + router)).orElseThrow();
         assertInstanceOf(Integer.class, mem.properties().get("total-memory"));
+    }
+
+    @Test
+    void editionSwiftletsAreDescribed() {
+        String release = (String) reader.read(router, MgmtPath.of("/.env")).orElseThrow().properties().get("release");
+        Edition edition = reader.edition(router);
+        assertEquals(Edition.fromRelease(release), edition);
+        for (String swiftlet : reader.catalog().swiftlets(edition).keySet())
+            reader.read(router, MgmtPath.of("/" + swiftlet)).ifPresent(view -> assertNotNull(view.kind(), swiftlet));
+        if (edition != Edition.CE) {
+            var filecache = reader.read(router, MgmtPath.of("/sys$filecache")).orElseThrow();
+            assertInstanceOf(Long.class, filecache.properties().get("collect-interval"), filecache.toString());
+            assertTrue(filecache.children().containsAll(java.util.List.of("caches", "usage")));
+            assertNotNull(reader.read(router, MgmtPath.of("/sys$jac/usage")).orElseThrow().kind());
+        }
     }
 
     @Test

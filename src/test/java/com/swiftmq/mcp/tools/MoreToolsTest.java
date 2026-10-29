@@ -147,6 +147,40 @@ class MoreToolsTest extends ToolTestBase {
     }
 
     @Test
+    void outgoingConnectionsGetTheirOwner() {
+        cli.context("router", "/sys$net/usage", List.of("a:1", "routerB/172.20.0.2:4100", "localhost/127.0.0.1:2001", "x/10.0.0.1:9"), Map.of());
+        cli.context("router", "/sys$net/usage/a:1", List.of(), Map.of("swiftlet", "sys$jms", "throughput-input", "1.00", "throughput-output", "0.50"));
+        cli.context("router", "/sys$routing/usage/connections", List.of("routerB/172.20.0.2:4100"), Map.of());
+        cli.context("router", "/sys$hacontroller/usage/replication-connections", List.of("localhost/127.0.0.1:2001"), Map.of());
+
+        JsonNode ha = ok("list_network_connections", Map.of("swiftlet", "sys$hacontroller")).get("connections").get(0);
+        assertEquals("localhost/127.0.0.1:2001", ha.get("name").asString());
+        assertEquals("127.0.0.1:2001", ha.get("remoteAddress").asString());
+        assertEquals("outgoing", ha.get("direction").asString());
+        assertFalse(ha.get("readable").asBoolean());
+
+        JsonNode summary = ok("network_summary", Map.of()).get("swiftlets");
+        assertEquals(List.of("sys$hacontroller", "sys$jms", "sys$routing", "unknown"), fieldNames(summary));
+        assertEquals(1, summary.get("sys$routing").get("connections").asInt());
+        assertEquals(1, summary.get("unknown").get("connections").asInt());
+    }
+
+    @Test
+    void browsingANameWithSlashExplainsWhy() {
+        cli.context("router", "/sys$net/usage", List.of("localhost/127.0.0.1:2001"), Map.of());
+        String msg = error("browse_context", Map.of("path", "/sys$net/usage/localhost/127.0.0.1:2001"));
+        assertTrue(msg.contains("'localhost/127.0.0.1:2001' in /sys$net/usage exists") && msg.contains("can't open"), msg);
+        assertTrue(error("change_context", Map.of("path", "/sys$net/usage/localhost/127.0.0.1:2001")).contains("can't open"));
+        assertTrue(error("browse_context", Map.of("path", "/sys$net/usage/nope")).contains("doesn't exist"));
+    }
+
+    private static List<String> fieldNames(JsonNode node) {
+        List<String> names = new ArrayList<>();
+        node.propertyNames().forEach(names::add);
+        return names;
+    }
+
+    @Test
     void healthReportsIssues() {
         usageList("router", "routerdlq", "unroutable", "rt$r2", "orders", "tmp$1-9");
         queue("router", "routerdlq", 4);

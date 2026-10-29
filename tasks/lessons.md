@@ -12,7 +12,12 @@ Rules derived from corrections during planning/implementation (2026-10-24).
 - **One connection reaches the whole network.** No per-router passwords or `authenticate` are needed; don't add per-router credentials.
 
 ## Editions
-- HA builds on UR, and UR builds on CE (additions + per-swiftlet override). Ask about scope before building for all editions: v1 is **CE only**.
+- HA builds on UR, and UR builds on CE (additions + per-swiftlet override). Ask about scope before building for all editions.
+  v1 was CE only; all three are supported since 2026-10-28.
+- **Check the edition before blaming the code path.** A "missing swiftlet" report came from a UR router (`/.env`
+  release "... Universal Edition") read with the CE catalog. Look at the router's release first.
+- **The CLI Admin API can't list `/` or a context's property names.** Proposals to "read it from the live tree" must be
+  probed against a router first; the catalog stays the source of swiftlets and property names.
 
 ## Design process
 - **Clarify the deployment model early** (local stdio vs. remote). It decides auth, sessions, TLS and most of the architecture. Ask before designing the heavy variant.

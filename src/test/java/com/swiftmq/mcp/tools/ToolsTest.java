@@ -148,11 +148,38 @@ class ToolsTest extends ToolTestBase {
         cli.context("router", "/sys$routing", List.of(), Map.of());
         JsonNode r = ok("get_router_info", Map.of());
         assertEquals("13.02.04 Community Edition", r.get("release").asString());
+        assertEquals("CE", r.get("edition").asString());
         assertEquals(List.of("sys$queuemanager", "sys$routing"), strings(r.get("swiftlets")));
         assertEquals("not available", r.get("memory").asString());
         assertTrue(r.has("hint"));
         assertFalse(gateway.reads.stream().anyMatch(p -> p.contains("sys$authentication") || p.contains("sys$mgmt") || p.contains("sys$timer")),
                 "denied swiftlets are never probed: " + gateway.reads);
+    }
+
+    @Test
+    void universalEditionSwiftlets() {
+        cli.context("router", "/.env", List.of(), Map.of("release", "13.02.04 Universal Edition"));
+        cli.context("router", "/sys$queuemanager", List.of(), Map.of());
+        cli.context("router", "/sys$filecache", List.of("caches", "usage"), Map.of());
+        cli.context("router", "/sys$jac", List.of("static-containers", "usage"), Map.of());
+        assertEquals("UR", ok("get_router_info", Map.of()).get("edition").asString());
+        assertEquals(List.of("sys$filecache", "sys$jac", "sys$queuemanager", ".env"), strings(ok("list_swiftlets", Map.of()).get("swiftlets")));
+        JsonNode jac = ok("browse_context", Map.of("path", "/sys$jac"));
+        assertEquals("entity", jac.get("type").asString());
+        assertFalse(jac.get("description").isNull());
+        assertFalse(jac.has("note"));
+    }
+
+    @Test
+    void sameSwiftletsHiddenOnCommunityEdition() {
+        cli.context("router", "/.env", List.of(), Map.of("release", "13.02.04 Community Edition"));
+        cli.context("router", "/sys$jac", List.of("usage"), Map.of());
+        assertEquals(List.of(".env"), strings(ok("list_swiftlets", Map.of()).get("swiftlets")),
+                "a CE router has no sys$jac; the CE catalog doesn't probe it");
+        JsonNode jac = ok("browse_context", Map.of("path", "/sys$jac"));
+        assertFalse(jac.has("type"));
+        assertTrue(jac.get("note").asString().contains("doesn't describe this context"), jac.toString());
+        assertEquals(List.of("usage"), strings(jac.get("children")));
     }
 
     @Test

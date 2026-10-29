@@ -2,6 +2,7 @@ package com.swiftmq.mcp.access;
 
 import com.swiftmq.mcp.catalog.Catalog;
 import com.swiftmq.mcp.catalog.CatalogNode;
+import com.swiftmq.mcp.catalog.Edition;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -81,6 +82,26 @@ class ManagementReaderTest {
         assertEquals(false, reader.read("router", MgmtPath.of("/.env")).orElseThrow().properties().get("use-smart-tree"));
         var mem = reader.read("router", MgmtPath.of("/.env/router-memory-list/router")).orElseThrow();
         assertEquals(Map.of("free-memory", 15959, "total-memory", 96256), mem.properties());
+    }
+
+    @Test
+    void editionPerRouter() {
+        FakeCli cli = new FakeCli()
+                .context("ur", "/.env", List.of(), Map.of("release", "13.02.04 Universal Edition"))
+                .context("ur", "/sys$jac/usage", List.of(), Map.of())
+                .context("ce", "/.env", List.of(), Map.of("release", "13.02.04 Community Edition"))
+                .context("noenv", "/sys$queuemanager", List.of(), Map.of());
+        FakeGateway gateway = new FakeGateway(cli);
+        var reader = new ManagementReader(gateway, CATALOG, 500);
+        assertEquals(Edition.UR, reader.edition("ur"));
+        assertEquals(Edition.CE, reader.edition("ce"));
+        assertEquals(Edition.CE, reader.edition("noenv"));
+        assertEquals(CatalogNode.Kind.ENTITY, reader.read("ur", MgmtPath.of("/sys$jac/usage")).orElseThrow().kind());
+
+        gateway.reads.clear();
+        reader.edition("ur");
+        reader.read("ur", MgmtPath.of("/sys$jac/usage"));
+        assertEquals(List.of("ur:/sys$jac/usage"), gateway.reads, "the edition is read once per router");
     }
 
     @Test

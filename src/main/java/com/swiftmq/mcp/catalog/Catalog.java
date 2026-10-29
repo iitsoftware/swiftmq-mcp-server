@@ -8,19 +8,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Property metadata of the management tree per edition, generated from the swiftlets' config.xml
- * by {@link CatalogGenerator}. It is the only source of property names: the CLI Admin API can list
- * entities but not properties.
+ * by {@link CatalogGenerator}. It is the only source of property names and of the top-level swiftlets: the
+ * CLI Admin API can list a context's entities, but neither its properties nor the root context.
  *
  * @param release  SwiftMQ release the catalog was generated from, e.g. "13.02.04"
- * @param editions edition ("ce") → top-level context name (e.g. "sys$queuemanager") → root node
+ * @param editions edition layer ("ce", "ur", "ha") → top-level context name (e.g. "sys$queuemanager") → root node.
+ *                 CE is complete; UR and HA only hold what they add to or replace in their base (see {@link Edition}).
  */
 public record Catalog(String release, Map<String, Map<String, CatalogNode>> editions) {
 
     public static final String RESOURCE = "/swiftmq-metadata.json";
-    public static final String CE = "ce";
     public static final String ENV = ".env";
 
     /**
@@ -72,11 +73,29 @@ public record Catalog(String release, Map<String, Map<String, CatalogNode>> edit
         return m;
     }
 
-    public Map<String, CatalogNode> swiftlets(String edition) {
-        Map<String, CatalogNode> swiftlets = editions.get(edition);
-        if (swiftlets == null)
-            throw new IllegalArgumentException("Unknown edition: " + edition);
-        return swiftlets;
+    /** All swiftlets of an edition, including those of its bases, by name. */
+    public Map<String, CatalogNode> swiftlets(Edition edition) {
+        Map<String, CatalogNode> merged = new TreeMap<>();
+        for (Edition layer : edition.layers().reversed())
+            merged.putAll(layer(layer));
+        return merged;
+    }
+
+    /** The root node of one swiftlet in an edition, or null if that edition doesn't have it. */
+    public CatalogNode swiftlet(Edition edition, String name) {
+        for (Edition layer : edition.layers()) {
+            CatalogNode node = layer(layer).get(name);
+            if (node != null)
+                return node;
+        }
+        return null;
+    }
+
+    private Map<String, CatalogNode> layer(Edition edition) {
+        Map<String, CatalogNode> layer = editions.get(edition.key());
+        if (layer == null)
+            throw new IllegalStateException("Catalog has no layer for edition " + edition.key());
+        return layer;
     }
 
     /**
@@ -85,11 +104,11 @@ public record Catalog(String release, Map<String, Map<String, CatalogNode>> edit
      *
      * @return the node, or null if the catalog doesn't describe that path
      */
-    public CatalogNode lookup(String edition, String absolutePath) {
+    public CatalogNode lookup(Edition edition, String absolutePath) {
         String[] segments = absolutePath.split("/");
         if (segments.length < 2 || !segments[0].isEmpty())
             throw new IllegalArgumentException("Not an absolute path: " + absolutePath);
-        CatalogNode node = ENV.equals(segments[1]) ? ENV_NODE : swiftlets(edition).get(segments[1]);
+        CatalogNode node = ENV.equals(segments[1]) ? ENV_NODE : swiftlet(edition, segments[1]);
         for (int i = 2; i < segments.length && node != null; i++)
             node = node.child(segments[i]);
         return node;
