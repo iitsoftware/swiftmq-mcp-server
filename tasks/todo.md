@@ -576,4 +576,4 @@ or NAT the connect hung unless the listener had `connectaddress`/`connectport`.
 - [x] Test network: removed the `connectaddress`/`connectport` workaround from routerA's preconfig
 - [x] README (settings, URL options, TLS via `type`, troubleshooting), config example
 - Verified: full suite; RouterNetworkTest over the mapped port 14001 without the workaround (JNDI hangs there);
-  host2/port2 fallback (dead primary → Docker router); live HA pair not running at the time of this change.
+  host2/port2 fallback (dead primary → Docker router); live HA pair tested by the user (2026-10-29).
